@@ -1,4 +1,5 @@
 using System.Text;
+using NUnit.Framework;
 
 namespace SharpToken.Tests;
 
