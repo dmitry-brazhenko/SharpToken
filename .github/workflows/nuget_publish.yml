@@ -62,3 +62,4 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: "./output/SharpToken.${{ steps.calculate_version.outputs.version }}.nupkg"
           asset_name: SharpToken.${{ steps.calculate_version.outputs.version }}.nupkg
+          asset_content_type: application/zip
