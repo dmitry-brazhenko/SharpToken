@@ -39,4 +39,5 @@ jobs:
 
       - name: Push NuGet Package
         run: |
-          dotnet nuget push "./SharpToken/SharpToken/output/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+          $packagePath = "./output/SharpToken.$env:VERSION.nupkg"
+          dotnet nuget push $packagePath --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
