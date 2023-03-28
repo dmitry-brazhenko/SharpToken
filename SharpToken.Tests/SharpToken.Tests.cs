@@ -1,11 +1,12 @@
 using System.Diagnostics;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace SharpToken.Tests;
 
 public class Tests
 {
-    // private static readonly List<string> ModelsList = new() { "p50k_base", "r50k_base", "cl100k_base" };
+    private static readonly List<string> ModelsList = new() { "p50k_base", "r50k_base", "cl100k_base" };
 
     private static List<Tuple<string, string, List<int>>> _testData =
         TestHelpers.ReadTestPlans("SharpToken.Tests.data.TestPlans.txt");
@@ -78,28 +79,26 @@ public class Tests
         Assert.Throws<ArgumentException>(TestAction);
     }
 
-    // [Test]
-    // [TestCaseSource(nameof(ModelsList))]
-    // public async Task TestLocalResourceMatchesRemoteResource(string modelName)
-    // {
-    //     var embeddedResourceName = $"SharpToken.data.{modelName}.tiktoken";
-    //     var remoteResourceUrl = $"https://openaipublic.blob.core.windows.net/encodings/{modelName}.tiktoken";
-    //
-    //     using var sha256 = SHA256.Create();
-    //
-    //     // Read the embedded resource file and calculate its hash
-    //     using var stream = typeof(GptEncoding).Assembly.GetManifestResourceStream(embeddedResourceName) ??
-    //                        throw new InvalidOperationException();
-    //     var embeddedResourceBytes = new byte[stream.Length];
-    //     _ = await stream.ReadAsync(embeddedResourceBytes).ConfigureAwait(true);
-    //     var embeddedResourceHash = sha256.ComputeHash(embeddedResourceBytes);
-    //
-    //     // Download the remote file and calculate its hash
-    //     using var httpClient = new HttpClient();
-    //     var remoteResourceBytes = await httpClient.GetByteArrayAsync(remoteResourceUrl).ConfigureAwait(true);
-    //     var remoteResourceHash = sha256.ComputeHash(remoteResourceBytes);
-    //
-    //     // Compare the hashes and assert their equality
-    //     Assert.That(embeddedResourceHash, Is.EqualTo(remoteResourceHash));
-    // }
+    [Test]
+    [TestCaseSource(nameof(ModelsList))]
+    public async Task TestLocalResourceMatchesRemoteResource(string modelName)
+    {
+        var embeddedResourceName = $"SharpToken.data.{modelName}.tiktoken";
+        var remoteResourceUrl = $"https://openaipublic.blob.core.windows.net/encodings/{modelName}.tiktoken";
+
+        // Read the embedded resource file
+        using var stream = typeof(GptEncoding).Assembly.GetManifestResourceStream(embeddedResourceName) ??
+                           throw new InvalidOperationException();
+        var embeddedResourceText = new StreamReader(stream).ReadToEnd();
+        var normalizedEmbeddedResourceText = embeddedResourceText.Replace("\r\n", "\n").Replace("\n", Environment.NewLine);
+
+        // Download the remote file
+        using var httpClient = new HttpClient();
+        var remoteResourceBytes = await httpClient.GetByteArrayAsync(remoteResourceUrl).ConfigureAwait(true);
+        var remoteResourceText = Encoding.UTF8.GetString(remoteResourceBytes);
+        var normalizedRemoteResourceText = remoteResourceText.Replace("\r\n", "\n").Replace("\n", Environment.NewLine);
+
+        // Compare the contents of the files and assert their equality
+        Assert.That(normalizedEmbeddedResourceText, Is.EqualTo(normalizedRemoteResourceText));
+    }
 }
