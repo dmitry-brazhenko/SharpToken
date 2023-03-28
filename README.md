@@ -29,11 +29,11 @@ var encoding = GptEncoding.GetEncoding("cl100k_base");
 
 You can then use the Encode method to encode a string:
 ```csharp
-var encoded = encoding.Encode("Hello, world!");
+var encoded = encoding.Encode("Hello, world!"); // Output: [9906, 11, 1917, 0]
 ```
 And use the Decode method to decode the encoded tokens:
 ```csharp
-var decoded = encoding.Decode(encoded);
+var decoded = encoding.Decode(encoded); // Output: "Hello, world!"
 ```
 
 ## Supported Models
