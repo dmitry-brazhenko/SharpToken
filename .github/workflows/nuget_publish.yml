@@ -53,6 +53,7 @@ jobs:
           body: Release of version ${{ steps.calculate_version.outputs.version }}
           draft: false
           prerelease: false
+          asset_name: SharpToken.${{ steps.calculate_version.outputs.version }}.nupkg
 
       - name: Upload NuGet Package as Release Asset
         uses: actions/upload-release-asset@v1
