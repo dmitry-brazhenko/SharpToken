@@ -68,6 +68,41 @@ var decoded = cl100kBaseEncoding.Decode(encoded); // Output: "Hello world!"
 
 With SharpToken, you can seamlessly switch between different encodings to find the one that best suits your needs. Just remember to use the same encoding for both the `Encode` and `Decode` methods to ensure accurate results.
 
+## Advanced usage
+### Custom Allowed Sets
+   SharpToken allows you to specify custom sets of allowed special tokens when encoding text. To do this, pass a HashSet<string> containing the allowed special tokens as a parameter to the Encode method:
+```csharp
+const string encodingName = "cl100k_base";
+const string inputText = "Some Text <|endofprompt|>";
+var allowedSpecialTokens = new HashSet<string> { "<|endofprompt|>" };
+
+var encoding = GptEncoding.GetEncoding(encodingName);
+var encoded = encoding.Encode(inputText, allowedSpecialTokens);
+var expectedEncoded = new List<int> { 8538, 2991, 220, 100276 };
+
+Assert.Equal(expectedEncoded, encoded);
+```
+### Custom Disallowed Sets
+Similarly, you can specify custom sets of disallowed special tokens when encoding text. Pass a `HashSet<string>` containing the disallowed special tokens as a parameter to the Encode method:
+```csharp
+const string encodingName = "cl100k_base";
+const string inputText = "Some Text";
+
+var encoding = GptEncoding.GetEncoding(encodingName);
+
+void TestAction()
+{
+    encoding.Encode(inputText, disallowedSpecial: new HashSet<string> { "Some" });
+}
+
+Assert.Throws<ArgumentException>(TestAction);
+```
+In this example, an `ArgumentException` is thrown because the input text contains a disallowed special token
+
+## Testing and Validation
+
+SharpToken includes a set of test cases in the [TestPlans.txt](SharpToken.Tests/data/TestPlans.txt) file to ensure its compatibility with the Python tiktoken library. These test cases validate the functionality and behavior of SharpToken, providing a reliable reference for developers. Running the unit tests and verifying the test cases helps maintain consistency between the C# SharpToken library and the original Python implementation.
+
 ## Contributions and Feedback
 If you encounter any issues or have suggestions for improvements, please feel free to open an issue or submit a pull request on the project's repository.
 
