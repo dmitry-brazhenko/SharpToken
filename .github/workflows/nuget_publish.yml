@@ -1,0 +1,43 @@
+name: Publish NuGet Package
+
+on:
+  push:
+    branches:
+      - main # or your default branch name
+
+jobs:
+  build_and_publish:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x' # Modify this to match your .NET version
+
+      - name: Calculate Package Version
+        id: calculate_version
+        run: |
+          $version = "1.0.$env:GITHUB_RUN_NUMBER"
+          echo "Calculated package version: $version"
+          echo "::set-output name=version::$version"
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test --no-restore --verbosity normal
+
+      - name: Publish NuGet Package
+        run: dotnet pack --configuration Release --no-build --output ./output /p:Version=${{ steps.calculate_version.outputs.version }}
+
+      - name: Push NuGet Package
+        run: |
+          dotnet nuget push "./output/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+
