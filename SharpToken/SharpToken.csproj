@@ -4,6 +4,7 @@
     <TargetFrameworks>net6.0;netstandard2.1</TargetFrameworks>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,6 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="docs\readme.md" Pack="true" PackagePath="\"/>
+    
     <None Remove="Lib\" />
     <None Remove="data\" />
     <None Remove="data\cl100k_base.tiktoken" />
