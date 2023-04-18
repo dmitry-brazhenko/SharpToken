@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 
 namespace SharpToken
 {
-
     public class GptEncoding
     {
         private readonly BytePairEncodingCore _bytePairEncodingCoreProcessor;
@@ -43,13 +42,19 @@ namespace SharpToken
 
         private int MaxTokenValue { get; }
 
-        public static GptEncoding GetEncoding(string modelName)
+        public static GptEncoding GetEncoding(string encodingName)
         {
-            var modelParams = ModelParamsGenerator.GetModelParams(modelName);
+            var modelParams = ModelParamsGenerator.GetModelParams(encodingName);
 
             var encoding = new GptEncoding(modelParams.PatStr, modelParams.MergeableRanks,
                 modelParams.SpecialTokens, modelParams.ExplicitNVocab);
             return encoding;
+        }
+
+        public static GptEncoding GetEncodingForModel(string modelName)
+        {
+            var encodingName = Model.GetEncodingNameForModel(modelName);
+            return GetEncoding(encodingName);
         }
 
         private static string SpecialTokenRegex(ISet<string> tokens)
