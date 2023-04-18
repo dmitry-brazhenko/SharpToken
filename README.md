@@ -22,9 +22,13 @@ To use SharpToken in your project, first import the library:
 ```csharp
 using SharpToken;
 ```
-Next, create an instance of GptEncoding by specifying the desired encoding:
+Next, create an instance of GptEncoding by specifying the desired encoding or model:
 ```csharp
+// Get encoding by encoding name
 var encoding = GptEncoding.GetEncoding("cl100k_base");
+
+// Get encoding by model name
+var encoding = GptEncoding.GetEncodingForModel("gpt-4");
 ```
 
 You can then use the Encode method to encode a string:

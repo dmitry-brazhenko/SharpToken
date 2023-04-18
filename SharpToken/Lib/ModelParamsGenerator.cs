@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace SharpToken
@@ -32,15 +32,15 @@ namespace SharpToken
         private const string FimSuffix = "<|fim_suffix|>";
         private const string EndOfPrompt = "<|endofprompt|>";
 
-        public static ModelParams GetModelParams(string name)
+        public static ModelParams GetModelParams(string encodingName)
         {
-            return name.ToLower() switch
+            return encodingName.ToLower() switch
             {
                 "r50k_base" => R50KBase(),
                 "p50k_base" => P50KBase(),
                 "p50k_edit" => P50KEdit(),
                 "cl100k_base" => Cl100KBase(),
-                _ => throw new ArgumentException($"Unknown model name: {name}")
+                _ => throw new ArgumentException($"Unknown encoding name: {encodingName}")
             };
         }
 
