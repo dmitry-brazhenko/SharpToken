@@ -7,14 +7,13 @@ public class Tests
 {
     private static readonly List<string> ModelsList = new() { "p50k_base", "r50k_base", "cl100k_base" };
 
-    private static List<Tuple<string, string, List<int>>> _testData =
+    private static readonly List<Tuple<string, string, List<int>>> _testData =
         TestHelpers.ReadTestPlans("SharpToken.Tests.data.TestPlans.txt");
 
     [SetUp]
     public void Setup()
     {
     }
-
 
     [Test]
     [TestCaseSource(nameof(_testData))]
@@ -99,5 +98,23 @@ public class Tests
 
         // Compare the contents of the files and assert their equality
         Assert.That(normalizedEmbeddedResourceText, Is.EqualTo(normalizedRemoteResourceText));
+    }
+
+    [Test]
+    public void TestEncodingForModel()
+    {
+        const string modelName = "gpt-4";
+        const string inputText = "Hello, world!";
+        var expectedEncoded = new List<int> { 9906, 11, 1917, 0 };
+
+        var encoding = GptEncoding.GetEncodingForModel(modelName);
+        var encoded = encoding.Encode(inputText);
+        var decodedText = encoding.Decode(encoded);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(encoded, Is.EqualTo(expectedEncoded));
+            Assert.That(decodedText, Is.EqualTo(inputText));
+        });
     }
 }
