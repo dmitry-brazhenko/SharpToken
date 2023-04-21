@@ -70,8 +70,8 @@ namespace SharpToken
         }
 
         public List<int> Encode(string lineToEncode,
-            ISet<string>? allowedSpecial = null,
-            ISet<string>? disallowedSpecial = null)
+            ISet<string> allowedSpecial = null,
+            ISet<string> disallowedSpecial = null)
         {
             var specialTokensSet = new HashSet<string>(_specialTokenMappings.Keys);
 
