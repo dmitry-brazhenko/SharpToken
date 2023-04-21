@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +11,9 @@ namespace SharpToken
     public class BytePairEncodingCore
     {
         public BytePairEncodingCore(
-            Dictionary<byte[], int>? bytePairEncoder = null,
-            Dictionary<string, int>? specialTokenEncoder = null,
-            Regex? tokenPatternRegex = null
+            Dictionary<byte[], int> bytePairEncoder = null,
+            Dictionary<string, int> specialTokenEncoder = null,
+            Regex tokenPatternRegex = null
         )
         {
             var comparer = new ByteArrayEqualityComparer();
@@ -138,14 +138,13 @@ namespace SharpToken
             return decodedBytes;
         }
 
-        private bool TryDecodeToken(int token, out byte[]? tokenBytes)
+        private bool TryDecodeToken(int token, out byte[] tokenBytes)
         {
             return Decoder.TryGetValue(token, out tokenBytes) ||
                    SpecialTokensDecoder.TryGetValue(token, out tokenBytes);
         }
 
-        private static T[] BytePairMerge<T>(
-            IReadOnlyCollection<byte> piece, IReadOnlyDictionary<byte[], int> ranks, Func<Range, T> f)
+        private static T[] BytePairMerge<T>(IReadOnlyCollection<byte> piece, IReadOnlyDictionary<byte[], int> ranks, Func<(int Start, int End), T> f)
         {
             var partitions = Enumerable.Range(0, piece.Count + 1)
                 .Select(i => (Start: i, Rank: int.MaxValue))
@@ -162,7 +161,7 @@ namespace SharpToken
                     .Take(partitionsList[startIndex + skip + 2].Start - partitionsList[startIndex].Start)
                     .ToArray();
 
-                return ranks.TryGetValue(key, out var rank) ? rank : (int?) null;
+                return ranks.TryGetValue(key, out var rank) ? rank : (int?)null;
             }
 
             for (var i = 0; i < partitions.Count - 2; i++)
@@ -210,7 +209,7 @@ namespace SharpToken
             var output = new List<T>(partitions.Count - 1);
             for (var i = 0; i < partitions.Count - 1; i++)
             {
-                output.Add(f(new Range(partitions[i].Start, partitions[i + 1].Start)));
+                output.Add(f((partitions[i].Start, partitions[i + 1].Start)));
             }
 
             return output.ToArray();
@@ -225,7 +224,7 @@ namespace SharpToken
 
             return BytePairMerge(inputBytes, bytePairRanks, pair =>
             {
-                var key = inputBytes.Skip(pair.Start.Value).Take(pair.End.Value - pair.Start.Value).ToArray();
+                var key = inputBytes.Skip(pair.Start).Take(pair.End - pair.Start).ToArray();
                 return bytePairRanks[key];
             });
         }
@@ -233,7 +232,7 @@ namespace SharpToken
 
     internal sealed class ByteArrayEqualityComparer : IEqualityComparer<byte[]>
     {
-        public bool Equals(byte[]? x, byte[]? y)
+        public bool Equals(byte[] x, byte[] y)
         {
             if (x == null || y == null)
             {
