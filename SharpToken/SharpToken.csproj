@@ -1,33 +1,36 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;netstandard2.1</TargetFrameworks>
-    <Nullable>enable</Nullable>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/dmitry-brazhenko/SharpToken</PackageProjectUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+
   <ItemGroup>
-    <Folder Include="Lib\" />
-    <Folder Include="data\" />
+    <Folder Include="Lib\"/>
+    <Folder Include="data\"/>
   </ItemGroup>
 
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="\"/>
     <None Include="..\LICENSE" Pack="true" PackagePath=""/>
 
-    <None Remove="Lib\" />
-    <None Remove="data\" />
-    <None Remove="data\cl100k_base.tiktoken" />
-    <None Remove="data\p50k_base.tiktoken" />
-    <None Remove="data\r50k_base.tiktoken" />
+    <None Remove="Lib\"/>
+    <None Remove="data\"/>
+    <None Remove="data\cl100k_base.tiktoken"/>
+    <None Remove="data\p50k_base.tiktoken"/>
+    <None Remove="data\r50k_base.tiktoken"/>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="data\cl100k_base.tiktoken" />
-    <EmbeddedResource Include="data\p50k_base.tiktoken" />
-    <EmbeddedResource Include="data\r50k_base.tiktoken" />
+    <EmbeddedResource Include="data\cl100k_base.tiktoken"/>
+    <EmbeddedResource Include="data\p50k_base.tiktoken"/>
+    <EmbeddedResource Include="data\r50k_base.tiktoken"/>
   </ItemGroup>
 </Project>
