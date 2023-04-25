@@ -5,7 +5,7 @@ namespace SharpToken
 {
     public static class Model
     {
-        private static readonly Dictionary<string, string> ModelToEncodingMapping = new Dictionary<string, string>()
+        private static readonly Dictionary<string, string> ModelToEncodingMapping = new Dictionary<string, string>
         {
             // chat
             { "gpt-4", "cl100k_base" },
@@ -43,7 +43,7 @@ namespace SharpToken
             { "text-search-babbage-doc-001", "r50k_base" },
             { "text-search-ada-doc-001", "r50k_base" },
             { "code-search-babbage-code-001", "r50k_base" },
-            { "code-search-ada-code-001", "r50k_base" },
+            { "code-search-ada-code-001", "r50k_base" }
         };
 
         public static string GetEncodingNameForModel(string modelName)

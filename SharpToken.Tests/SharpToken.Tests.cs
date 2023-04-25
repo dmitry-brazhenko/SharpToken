@@ -88,7 +88,8 @@ public class Tests
         using var stream = typeof(GptEncoding).Assembly.GetManifestResourceStream(embeddedResourceName) ??
                            throw new InvalidOperationException();
         var embeddedResourceText = new StreamReader(stream).ReadToEnd();
-        var normalizedEmbeddedResourceText = embeddedResourceText.Replace("\r\n", "\n").Replace("\n", Environment.NewLine);
+        var normalizedEmbeddedResourceText =
+            embeddedResourceText.Replace("\r\n", "\n").Replace("\n", Environment.NewLine);
 
         // Download the remote file
         using var httpClient = new HttpClient();
