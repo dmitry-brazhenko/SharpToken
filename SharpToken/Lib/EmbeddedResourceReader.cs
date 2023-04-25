@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -14,10 +14,15 @@ namespace SharpToken
         {
             var assembly = Assembly.GetExecutingAssembly();
 
-            using var stream = assembly.GetManifestResourceStream(resourceName) ??
+            var stream = assembly.GetManifestResourceStream(resourceName) ??
                                throw new FileNotFoundException($"Embedded resource '{resourceName}' not found.");
-            using var reader = new StreamReader(stream);
+            var reader = new StreamReader(stream);
             var content = reader.ReadToEnd();
+
+            reader.Close();
+            reader.Dispose();
+            stream.Close();
+            stream.Dispose();
 
             return content.Split(new[] {"\r\n", "\r", "\n"}, StringSplitOptions.None);
         }
@@ -25,7 +30,7 @@ namespace SharpToken
         public static Dictionary<byte[], int> LoadTokenBytePairEncoding(string dataSourceName)
         {
             var contents = ReadEmbeddedResourceAsLines(dataSourceName).Where(line => !string.IsNullOrEmpty(line))
-                .Select(line => line.Split(' ', StringSplitOptions.RemoveEmptyEntries)).ToArray();
+                .Select(line => line.Split(' ').Where(l=> !string.IsNullOrWhiteSpace(l)).ToArray()).ToArray();
 
             return contents.ToDictionary(
                 splitLine => Convert.FromBase64String(splitLine[0]),
