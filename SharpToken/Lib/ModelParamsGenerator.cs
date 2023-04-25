@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 namespace SharpToken
 {
-
     public readonly struct ModelParams
     {
         public int? ExplicitNVocab { get; }
@@ -34,7 +33,7 @@ namespace SharpToken
 
         public static ModelParams GetModelParams(string encodingName)
         {
-            switch(encodingName.ToLower())
+            switch (encodingName.ToLower())
             {
                 case "r50k_base":
                     return R50KBase();
@@ -50,7 +49,9 @@ namespace SharpToken
 
                 default:
                     throw new ArgumentException($"Unknown encoding name: {encodingName}");
-            };
+            }
+
+            ;
         }
 
         private static ModelParams R50KBase()
@@ -62,7 +63,7 @@ namespace SharpToken
                 50257,
                 @"'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+",
                 mergeableRanks,
-                new Dictionary<string, int> {{EndOfText, 50256}}
+                new Dictionary<string, int> { { EndOfText, 50256 } }
             );
         }
 
@@ -75,7 +76,7 @@ namespace SharpToken
                 50281,
                 @"'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+",
                 mergeableRanks,
-                new Dictionary<string, int> {{EndOfText, 50256}}
+                new Dictionary<string, int> { { EndOfText, 50256 } }
             );
         }
 
@@ -85,7 +86,7 @@ namespace SharpToken
 
             var specialTokens = new Dictionary<string, int>
             {
-                {EndOfText, 50256}, {FimPrefix, 50281}, {FimMiddle, 50282}, {FimSuffix, 50283}
+                { EndOfText, 50256 }, { FimPrefix, 50281 }, { FimMiddle, 50282 }, { FimSuffix, 50283 }
             };
 
             return new ModelParams
@@ -103,11 +104,11 @@ namespace SharpToken
 
             var specialTokens = new Dictionary<string, int>
             {
-                {EndOfText, 100257},
-                {FimPrefix, 100258},
-                {FimMiddle, 100259},
-                {FimSuffix, 100260},
-                {EndOfPrompt, 100276}
+                { EndOfText, 100257 },
+                { FimPrefix, 100258 },
+                { FimMiddle, 100259 },
+                { FimSuffix, 100260 },
+                { EndOfPrompt, 100276 }
             };
 
             return new ModelParams

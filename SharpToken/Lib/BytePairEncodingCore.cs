@@ -7,7 +7,6 @@ using System.Text.RegularExpressions;
 
 namespace SharpToken
 {
-
     public class BytePairEncodingCore
     {
         public BytePairEncodingCore(
@@ -144,7 +143,8 @@ namespace SharpToken
                    SpecialTokensDecoder.TryGetValue(token, out tokenBytes);
         }
 
-        private static T[] BytePairMerge<T>(IReadOnlyCollection<byte> piece, IReadOnlyDictionary<byte[], int> ranks, Func<(int Start, int End), T> f)
+        private static T[] BytePairMerge<T>(IReadOnlyCollection<byte> piece, IReadOnlyDictionary<byte[], int> ranks,
+            Func<(int Start, int End), T> f)
         {
             var partitions = Enumerable.Range(0, piece.Count + 1)
                 .Select(i => (Start: i, Rank: int.MaxValue))
@@ -219,7 +219,7 @@ namespace SharpToken
         {
             if (inputBytes.Length == 1)
             {
-                return new List<int> {bytePairRanks[inputBytes]}.ToArray();
+                return new List<int> { bytePairRanks[inputBytes] }.ToArray();
             }
 
             return BytePairMerge(inputBytes, bytePairRanks, pair =>
