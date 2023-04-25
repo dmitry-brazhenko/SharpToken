@@ -82,7 +82,7 @@ namespace SharpToken
 
             if (disallowedSpecial == null)
             {
-                disallowedSpecial = new HashSet<string> {"all"};
+                disallowedSpecial = new HashSet<string> { "all" };
             }
 
             if (disallowedSpecial.Contains("all"))
