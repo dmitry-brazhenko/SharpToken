@@ -13,9 +13,9 @@ namespace SharpToken
 
         public ModelParams(
             int? explicitNVocab = null,
-            string patStr = null!,
-            Dictionary<byte[], int> mergeableRanks = null!,
-            Dictionary<string, int>? specialTokens = null)
+            string patStr = null,
+            Dictionary<byte[], int> mergeableRanks = null,
+            Dictionary<string, int> specialTokens = null)
         {
             ExplicitNVocab = explicitNVocab;
             PatStr = patStr;
@@ -34,13 +34,22 @@ namespace SharpToken
 
         public static ModelParams GetModelParams(string encodingName)
         {
-            return encodingName.ToLower() switch
+            switch(encodingName.ToLower())
             {
-                "r50k_base" => R50KBase(),
-                "p50k_base" => P50KBase(),
-                "p50k_edit" => P50KEdit(),
-                "cl100k_base" => Cl100KBase(),
-                _ => throw new ArgumentException($"Unknown encoding name: {encodingName}")
+                case "r50k_base":
+                    return R50KBase();
+
+                case "p50k_base":
+                    return P50KBase();
+
+                case "p50k_edit":
+                    return P50KEdit();
+
+                case "cl100k_base":
+                    return Cl100KBase();
+
+                default:
+                    throw new ArgumentException($"Unknown encoding name: {encodingName}");
             };
         }
 
