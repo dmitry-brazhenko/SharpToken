@@ -113,9 +113,17 @@ namespace SharpToken
 
         public string Decode(List<int> inputTokensToDecode)
         {
-            var qq = _bytePairEncodingCoreProcessor.DecodeNative(inputTokensToDecode.ToArray());
-            var utf8Encoding = Encoding.GetEncoding("UTF-8");
-            return utf8Encoding.GetString(qq.ToArray());
+            // Validate the input parameter
+            if (inputTokensToDecode == null)
+            {
+                throw new ArgumentNullException(nameof(inputTokensToDecode), "Input tokens cannot be null.");
+            }
+
+            // Decode tokens
+            var decodedBytes = _bytePairEncodingCoreProcessor.DecodeNative(inputTokensToDecode);
+
+            // Convert bytes to UTF-8 string
+            return Encoding.UTF8.GetString(decodedBytes);
         }
 
         private static int GetMaxValueFromDictionary(Dictionary<byte[], int> dictionary)
