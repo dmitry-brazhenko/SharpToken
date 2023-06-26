@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -118,23 +119,20 @@ namespace SharpToken
             }
         }
 
-        public List<byte> DecodeNative(int[] tokens)
+        public byte[] DecodeNative(List<int> tokens)
         {
-            var decodedBytes = new List<byte>(tokens.Length * 2);
-            foreach (var token in tokens)
+            using (var memoryStream = new MemoryStream())
             {
-                if (!TryDecodeToken(token, out var tokenBytes))
+                foreach (var token in tokens)
                 {
-                    continue;
+                    if (TryDecodeToken(token, out var tokenBytes) && tokenBytes != null)
+                    {
+                        memoryStream.Write(tokenBytes, 0, tokenBytes.Length);
+                    }
                 }
 
-                if (tokenBytes != null)
-                {
-                    decodedBytes.AddRange(tokenBytes);
-                }
+                return memoryStream.ToArray();
             }
-
-            return decodedBytes;
         }
 
         private bool TryDecodeToken(int token, out byte[] tokenBytes)

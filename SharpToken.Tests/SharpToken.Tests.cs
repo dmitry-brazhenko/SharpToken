@@ -7,7 +7,7 @@ public class Tests
 {
     private static readonly List<string> ModelsList = new() { "p50k_base", "r50k_base", "cl100k_base" };
 
-    private static readonly List<Tuple<string, string, List<int>>> _testData =
+    private static readonly List<Tuple<string, string, List<int>>> TestData =
         TestHelpers.ReadTestPlans("SharpToken.Tests.data.TestPlans.txt");
 
     [SetUp]
@@ -16,7 +16,7 @@ public class Tests
     }
 
     [Test]
-    [TestCaseSource(nameof(_testData))]
+    [TestCaseSource(nameof(TestData))]
     public void TestEncodingAndDecoding(Tuple<string, string, List<int>> resource)
     {
         var (encodingName, textToEncode, expectedEncoded) = resource;
