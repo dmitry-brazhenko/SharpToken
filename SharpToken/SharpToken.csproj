@@ -14,23 +14,23 @@
 
 
   <ItemGroup>
-    <Folder Include="Lib\"/>
-    <Folder Include="data\"/>
+    <Folder Include="Lib\" />
+    <Folder Include="data\" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\README.md" Pack="true" PackagePath="\"/>
-    <None Include="..\LICENSE" Pack="true" PackagePath=""/>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\LICENSE" Pack="true" PackagePath="" />
 
-    <None Remove="Lib\"/>
-    <None Remove="data\"/>
-    <None Remove="data\cl100k_base.tiktoken"/>
-    <None Remove="data\p50k_base.tiktoken"/>
-    <None Remove="data\r50k_base.tiktoken"/>
+    <None Remove="Lib\" />
+    <None Remove="data\" />
+    <None Remove="data\cl100k_base.tiktoken" />
+    <None Remove="data\p50k_base.tiktoken" />
+    <None Remove="data\r50k_base.tiktoken" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="data\cl100k_base.tiktoken"/>
-    <EmbeddedResource Include="data\p50k_base.tiktoken"/>
-    <EmbeddedResource Include="data\r50k_base.tiktoken"/>
+    <EmbeddedResource Include="data\cl100k_base.tiktoken" />
+    <EmbeddedResource Include="data\p50k_base.tiktoken" />
+    <EmbeddedResource Include="data\r50k_base.tiktoken" />
   </ItemGroup>
 </Project>
