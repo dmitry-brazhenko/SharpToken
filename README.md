@@ -1,5 +1,10 @@
 # SharpToken
 
+[![NuGet](https://img.shields.io/nuget/v/SharpToken.svg)](https://www.nuget.org/packages/SharpToken)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Used by](https://img.shields.io/nuget/dt/SharpToken.svg)](https://www.nuget.org/packages/SharpToken)
+[![Contributors](https://img.shields.io/github/contributors/dmitry-brazhenko/SharpToken.svg)](https://github.com/dmitry-brazhenko/SharpToken/graphs/contributors)
+
 SharpToken is a C# library that serves as a port of the Python [tiktoken](https://github.com/openai/tiktoken) library.
 It provides functionality for encoding and decoding tokens using GPT-based encodings. This library is built for .NET 6
 and .NET Standard 2.0, making it compatible with a wide range of frameworks.
