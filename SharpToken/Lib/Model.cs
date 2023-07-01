@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace SharpToken
+namespace SharpToken.Lib
 {
     public static class Model
     {
