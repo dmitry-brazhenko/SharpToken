@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build_and_test:
+  build-test:
     runs-on: windows-latest
 
     steps:
