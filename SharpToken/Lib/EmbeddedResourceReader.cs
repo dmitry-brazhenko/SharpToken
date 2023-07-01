@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace SharpToken.Lib
+namespace SharpToken
 {
     public static class EmbeddedResourceReader
     {

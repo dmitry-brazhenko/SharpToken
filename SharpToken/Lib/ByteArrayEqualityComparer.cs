@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace SharpToken.Lib
+namespace SharpToken
 {
     public class ByteArrayEqualityComparer : IEqualityComparer<byte[]>
     {

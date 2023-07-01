@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace SharpToken.Lib
+namespace SharpToken
 {
     public class BytePairEncodingCore
     {
