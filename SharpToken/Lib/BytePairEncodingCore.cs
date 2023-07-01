@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -225,24 +224,6 @@ namespace SharpToken
                 var key = inputBytes.Skip(pair.Start).Take(pair.End - pair.Start).ToArray();
                 return bytePairRanks[key];
             });
-        }
-    }
-
-    internal sealed class ByteArrayEqualityComparer : IEqualityComparer<byte[]>
-    {
-        public bool Equals(byte[] x, byte[] y)
-        {
-            if (x == null || y == null)
-            {
-                return false;
-            }
-
-            return ReferenceEquals(x, y) || StructuralComparisons.StructuralEqualityComparer.Equals(x, y);
-        }
-
-        public int GetHashCode(byte[] obj)
-        {
-            return StructuralComparisons.StructuralEqualityComparer.GetHashCode(obj);
         }
     }
 }
