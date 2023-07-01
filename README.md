@@ -1,6 +1,7 @@
 # SharpToken
 
 [![NuGet](https://img.shields.io/nuget/v/SharpToken.svg)](https://www.nuget.org/packages/SharpToken)
+[![dotnet](https://github.com/dmitry-brazhenko/SharpToken/actions/workflows/build-test-and-publish.yml/badge.svg?branch=main)](https://github.com/dmitry-brazhenko/SharpToken/actions/workflows/build-test-and-publish.yml)
 [![Last Commit](https://img.shields.io/github/last-commit/dmitry-brazhenko/SharpToken.svg)](https://github.com/dmitry-brazhenko/SharpToken/commits/main)
 [![GitHub Issues](https://img.shields.io/github/issues/dmitry-brazhenko/SharpToken.svg)](https://github.com/dmitry-brazhenko/SharpToken/issues)
 [![Used by](https://img.shields.io/nuget/dt/SharpToken.svg)](https://www.nuget.org/packages/SharpToken)
