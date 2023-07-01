@@ -21,7 +21,7 @@ jobs:
       - name: Calculate Package Version
         id: calculate_version
         run: |
-          $version = "1.0.$env:GITHUB_RUN_NUMBER"
+          $version = "1.1.$env:GITHUB_RUN_NUMBER"
           echo "Calculated package version: $version"
           echo "::set-output name=version::$version"
 
