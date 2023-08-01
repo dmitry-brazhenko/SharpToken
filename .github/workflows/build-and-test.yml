@@ -14,12 +14,12 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Write SNK file
-          shell: pwsh
-          run: |
-            $env:SNK_BASE64 -split ' ' -join "`n" | Out-File -Encoding utf8 keypair.snk.base64.txt
-            certutil -decode keypair.snk.base64.txt keypair.snk
-          env:
-            SNK_BASE64: ${{ secrets.SNK_BASE64 }}
+        shell: pwsh
+        run: |
+          $env:SNK_BASE64 -split ' ' -join "`n" | Out-File -Encoding utf8 keypair.snk.base64.txt
+          certutil -decode keypair.snk.base64.txt keypair.snk
+        env:
+          SNK_BASE64: ${{ secrets.SNK_BASE64 }}
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
