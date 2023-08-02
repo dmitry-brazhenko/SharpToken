@@ -17,7 +17,7 @@
     <KeyFilePath>keypair.snk</KeyFilePath>
   </PropertyGroup>
 
-  <PropertyGroup Condition="Exists('$(KeyFilePath)')">
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(KeyFilePath)</AssemblyOriginatorKeyFile>
   </PropertyGroup>
