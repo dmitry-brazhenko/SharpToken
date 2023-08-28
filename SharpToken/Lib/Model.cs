@@ -9,6 +9,8 @@ namespace SharpToken
         {
             // chat
             { "gpt-4", "cl100k_base" },
+            { "gpt-3.5-turbo-16k", "cl100k_base" },
+            { "gpt-35-turbo-16k", "cl100k_base" }, // Azure deployment name
             { "gpt-3.5-turbo", "cl100k_base" },
             { "gpt-35-turbo", "cl100k_base" }, // Azure deployment name
             // text
