@@ -78,6 +78,26 @@ public class Tests
     }
 
     [Test]
+    public void TestModelPrefixToEncodingMapping()
+    {
+        const string encodingName = "cl100k_base";
+        const string modelName = "gpt-3.5-turbo-16k-0613";
+        const string fakeModelName = "gpt-3.6-turbo";
+
+        var encoding = Model.GetEncodingNameForModel(modelName);
+
+        static void TestModelPrefixMappingFailsAction()
+        {
+            Model.GetEncodingNameForModel(fakeModelName);
+        }
+        Assert.Multiple(() =>
+        {
+            Assert.That(encoding, Is.EqualTo(encodingName));
+            Assert.Throws<Exception>(TestModelPrefixMappingFailsAction);
+        });
+    }
+
+    [Test]
     [TestCaseSource(nameof(ModelsList))]
     public async Task TestLocalResourceMatchesRemoteResource(string modelName)
     {
