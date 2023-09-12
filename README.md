@@ -78,6 +78,34 @@ var p50kEditEncoding = GptEncoding.GetEncoding("p50k_edit");
 var cl100kBaseEncoding = GptEncoding.GetEncoding("cl100k_base");
 ```
 
+### Model Prefix Matching
+
+Apart from specifying direct model names, SharpToken also provides functionality to map model names based on specific prefixes. This allows users to retrieve an encoding based on a model's prefix.
+
+Here are the current supported prefixes and their corresponding encodings:
+
+| Model Prefix        | Encoding   |
+|---------------------|------------|
+| `gpt-4-`            | `cl100k_base` |
+| `gpt-3.5-turbo-`    | `cl100k_base` |
+| `gpt-35-turbo`      | `cl100k_base` |
+
+Examples of model names that fall under these prefixes include:
+- For the prefix `gpt-4-`: `gpt-4-0314`, `gpt-4-32k`, etc.
+- For the prefix `gpt-3.5-turbo-`: `gpt-3.5-turbo-0301`, `gpt-3.5-turbo-0401`, etc.
+- For the Azure deployment name `gpt-35-turbo`.
+
+To retrieve the encoding name based on a model name or its prefix, you can use the `GetEncodingNameForModel` method:
+
+```csharp
+string encodingName = GetEncodingNameForModel("gpt-4-0314");  // This will return "cl100k_base"
+```
+
+If the provided model name doesn't match any direct model names or prefixes, the method will return `null`.
+
+
+
+
 ## Understanding Encoded Values
 
 When you encode a string using the Encode method, the returned value is a list of integers that represent tokens in the
