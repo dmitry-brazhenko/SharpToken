@@ -32,6 +32,31 @@ public class Tests
     }
 
     [Test]
+    public async Task TestEncodingAndDecodingInParallel()
+    {
+        var tasks = TestData.Select(_ => Task.Run(() =>
+        {
+            var (encodingName, textToEncode, expectedEncoded) = _;
+            var encoding = GptEncoding.GetEncoding(encodingName);
+            var encoded = encoding.Encode(textToEncode);
+            var decodedText = encoding.Decode(encoded);
+            return (textToEncode, encoded, expectedEncoded, decodedText);
+        }));
+
+        await Task.WhenAll(tasks).ConfigureAwait(false);
+
+        foreach (var (textToEncode, encoded, expectedEncoded, decodedText) in tasks.Select(_ => _.Result))
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(encoded, Is.EqualTo(expectedEncoded));
+                Assert.That(decodedText, Is.EqualTo(textToEncode));
+            });
+        }
+    }
+
+
+    [Test]
     public void TestEncodingWithCustomAllowedSet()
     {
         const string encodingName = "cl100k_base";
