@@ -44,15 +44,15 @@ namespace SharpToken
 
             while (true)
             {
-                var nextSpecialStartIndex = FindNextSpecialStartIndex(text, allowedSpecialTokens, startIndex);
-
                 var textSegment = text;
-                if (nextSpecialStartIndex != null)
+
+                var nextSpecialMatch = allowedSpecialTokens.FindMatch(text, startIndex);
+                if (nextSpecialMatch.Success)
                 {
-                    var endIndex = nextSpecialStartIndex.Value;
+                    var endIndex = nextSpecialMatch.Index + startIndex;
                     textSegment = text.Substring(0, endIndex - startIndex);
                 }
-                
+
                 foreach (var match in RegexTls.Matches(textSegment, startIndex).Cast<Match>())
                 {
                     var encodedPiece = Encoding.UTF8.GetBytes(match.Value);
@@ -65,17 +65,12 @@ namespace SharpToken
                     }
                 }
 
-                if (nextSpecialStartIndex.HasValue)
+                if (nextSpecialMatch.Success)
                 {
-                    /*
-                     * This looks like a bug!
-                     * In case `text` contains a specialToken in the middle like "lorem ipsum <specialToken> foobar".
-                     * Then text substring equals: "<specialToken> foobar" witch will not be found in `SpecialTokensEncoder`.
-                     */
-                    var specialToken = text.Substring(nextSpecialStartIndex.Value);
+                    var specialToken = nextSpecialMatch.Value;
                     var specialTokenValue = SpecialTokensEncoder[specialToken];
                     encodedTokens.Add(specialTokenValue);
-                    startIndex = nextSpecialStartIndex.Value + specialToken.Length;
+                    startIndex = nextSpecialMatch.Index + specialToken.Length;
                     lastTokenLength = 0;
                 }
                 else
@@ -85,30 +80,6 @@ namespace SharpToken
             }
 
             return (encodedTokens, lastTokenLength);
-        }
-
-        private static int? FindNextSpecialStartIndex(string text, string[] allowedSpecial, int startIndex)
-        {
-            var searchIndex = startIndex;
-
-            while (true)
-            {
-                var nextSpecialMatch = allowedSpecial.FindMatch(text, searchIndex);
-
-                if (!nextSpecialMatch.Success)
-                {
-                    return null;
-                }
-
-                var specialToken = nextSpecialMatch.Value;
-
-                if (allowedSpecial.Contains(specialToken))
-                {
-                    return nextSpecialMatch.Index + searchIndex;
-                }
-
-                searchIndex = nextSpecialMatch.Index + searchIndex + 1;
-            }
         }
 
         public byte[] DecodeNative(List<int> tokens)
