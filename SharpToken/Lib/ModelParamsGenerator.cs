@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SharpToken
 {
-    public readonly struct ModelParams
+    internal readonly struct ModelParams
     {
         public int? ExplicitNVocab { get; }
         public string PatStr { get; }
@@ -23,7 +23,7 @@ namespace SharpToken
         }
     }
 
-    public static class ModelParamsGenerator
+    internal static class ModelParamsGenerator
     {
         private const string EndOfText = "<|endoftext|>";
         private const string FimPrefix = "<|fim_prefix|>";

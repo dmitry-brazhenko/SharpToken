@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SharpToken
 {
-    public class ByteArrayEqualityComparer : IEqualityComparer<byte[]>
+    internal sealed class ByteArrayEqualityComparer : IEqualityComparer<byte[]>
     {
         // Constants used in the GetHashCode method.
         private const int SampleSizeDivider = 16;

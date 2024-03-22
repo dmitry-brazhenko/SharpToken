@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace SharpToken
 {
-    public class BytePairEncodingCore
+    internal sealed class BytePairEncodingCore
     {
         public BytePairEncodingCore(
             Dictionary<byte[], int> bytePairEncoder = null,

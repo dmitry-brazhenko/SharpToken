@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace SharpToken
 {
-    public static class EmbeddedResourceReader
+    internal static class EmbeddedResourceReader
     {
         private static IEnumerable<string> ReadEmbeddedResourceAsLines(string resourceName)
         {
