@@ -13,6 +13,24 @@ in `..\SharpToken\SharpToken.Benchmark\bin\Release\net8.0\SharpToken.Benchmark.e
 ## Results:
 
 
+### commit | feat(performance): use compile time generated regex in net8.0 | version: 1.2.17 + improvements for regex in net8.0
+
+BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3155/23H2/2023Update/SunValley3)
+AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
+.NET SDK 8.0.200
+  [Host]               : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET 6.0             : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
+  .NET 8.0             : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET Framework 4.7.1 : .NET Framework 4.8.1 (4.8.9181.0), X64 RyuJIT VectorSize=256
+
+
+| Method | Job                  | Runtime              | Mean       | Error    | StdDev   | Ratio | RatioSD | Gen0     | Gen1    | Allocated | Alloc Ratio |
+|------- |--------------------- |--------------------- |-----------:|---------:|---------:|------:|--------:|---------:|--------:|----------:|------------:|
+| Encode | .NET 6.0             | .NET 6.0             | 1,230.8 us | 24.22 us | 51.61 us |  0.67 |    0.03 |  99.6094 |  7.8125 | 826.18 KB |        0.90 |
+| Encode | .NET 8.0             | .NET 8.0             |   739.7 us |  4.31 us |  4.03 us |  0.40 |    0.00 |  31.2500 |  1.9531 | 258.58 KB |        0.28 |
+| Encode | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 1,847.5 us | 17.26 us | 14.41 us |  1.00 |    0.00 | 148.4375 | 13.6719 | 921.82 KB |        1.00 |
+
+
 ### commit | feat(performance): add support for ReadOnlySpan<char> in net8.0 | version: 1.2.17 + improvements for net8.0
 
 BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3155/23H2/2023Update/SunValley3)
