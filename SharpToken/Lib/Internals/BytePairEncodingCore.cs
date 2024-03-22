@@ -47,10 +47,14 @@ namespace SharpToken
             {
                 var nextSpecialStartIndex = FindNextSpecialStartIndex(text, allowedSpecialTokens, startIndex);
 
-                var endIndex = nextSpecialStartIndex ?? text.Length;
-                var textSegment = text.Substring(startIndex, endIndex - startIndex);
-
-                foreach (var match in RegexTls.Matches(textSegment).Cast<Match>())
+                var textSegment = text;
+                if (nextSpecialStartIndex != null)
+                {
+                    var endIndex = nextSpecialStartIndex.Value;
+                    textSegment = text.Substring(0, endIndex - startIndex);
+                }
+                
+                foreach (var match in RegexTls.Matches(textSegment, startIndex).Cast<Match>())
                 {
                     var encodedPiece = Encoding.UTF8.GetBytes(match.Value);
 
