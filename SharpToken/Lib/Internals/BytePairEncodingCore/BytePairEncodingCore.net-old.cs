@@ -1,3 +1,4 @@
+#if !NET8_0_OR_GREATER
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -82,7 +83,7 @@ namespace SharpToken
             return (encodedTokens, lastTokenLength);
         }
 
-        public byte[] DecodeNative(List<int> tokens)
+        public byte[] DecodeNative(IEnumerable<int> tokens)
         {
             using (var memoryStream = new MemoryStream())
             {
@@ -119,7 +120,7 @@ namespace SharpToken
                 }
 
                 var key = piece.Slice(partitionsList[startIndex].Start, partitionsList[startIndex + skip + 2].Start);
-                return ranks.TryGetValue(key, out var rank) ? rank : (int?)null;
+                return ranks.TryGetValue(key, out var rank) ? rank : (int?) null;
             }
 
             for (var i = 0; i < partitions.Count - 2; i++)
@@ -186,3 +187,5 @@ namespace SharpToken
         }
     }
 }
+
+#endif

@@ -61,17 +61,19 @@ namespace SharpToken
             return GetEncoding(encodingName);
         }
 
-        private static string SpecialTokenRegex(ISet<string> tokens)
+#if NET8_0_OR_GREATER
+        // keep this overload because it was part of previous public API:
+        public List<int> Encode(string lineToEncode, ISet<string> allowedSpecial = null, ISet<string> disallowedSpecial = null)
         {
-            var escapedTokens = tokens.Select(Regex.Escape);
-            var inner = string.Join("|", escapedTokens);
-            return $"({inner})";
+            return Encode(lineToEncode.AsSpan(), allowedSpecial, disallowedSpecial);
         }
 
-        public List<int> Encode(string lineToEncode,
-            ISet<string> allowedSpecial = null,
-            ISet<string> disallowedSpecial = null)
+        public List<int> Encode(ReadOnlySpan<char> lineToEncode, ISet<string> allowedSpecial = null, ISet<string> disallowedSpecial = null)
         {
+#else
+        public List<int> Encode(string lineToEncode, ISet<string> allowedSpecial = null, ISet<string> disallowedSpecial = null)
+        {
+#endif
             var specialTokensSet = new HashSet<string>(_specialTokenMappings.Keys);
 
             if (allowedSpecial == null)
@@ -97,8 +99,7 @@ namespace SharpToken
 
             if (disallowedSpecial.Count > 0)
             {
-                var regexPattern = SpecialTokenRegex(disallowedSpecial);
-                var match = Regex.Match(lineToEncode, regexPattern);
+                var match = disallowedSpecial.FindMatch(lineToEncode);
                 if (match.Success)
                 {
                     throw new ArgumentException($"Disallowed special token found: {match.Value}");
@@ -109,7 +110,13 @@ namespace SharpToken
             return encodedLine.Item1;
         }
 
+        // keep this overload because it was part of previous public API:
         public string Decode(List<int> inputTokensToDecode)
+        {
+            return Decode((IEnumerable<int>) inputTokensToDecode);
+        }
+
+        public string Decode(IEnumerable<int> inputTokensToDecode)
         {
             // Validate the input parameter
             if (inputTokensToDecode == null)
