@@ -1,6 +1,5 @@
 using System;
 
-
 namespace SharpToken
 {
     internal static class Extensions
