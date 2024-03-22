@@ -66,7 +66,7 @@ namespace SharpToken
             return new ModelParams
             (
                 explicitNVocab: 50257,
-                tokenizerRegex: new Regex(@"'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+", RegexOptions.Compiled),
+                tokenizerRegex: ModelParamsGeneratorRegex.Regex50KBase(),
                 mergeableRanks: mergeableRanks,
                 specialTokens: new Dictionary<string, int> { { EndOfText, 50256 } }
             );
@@ -79,7 +79,7 @@ namespace SharpToken
             return new ModelParams
             (
                 explicitNVocab: 50281,
-                tokenizerRegex: new Regex(@"'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+", RegexOptions.Compiled),
+                tokenizerRegex: ModelParamsGeneratorRegex.Regex50KBase(),
                 mergeableRanks: mergeableRanks,
                 specialTokens: new Dictionary<string, int> { { EndOfText, 50256 } }
             );
@@ -93,7 +93,7 @@ namespace SharpToken
 
             return new ModelParams
             (
-                tokenizerRegex: new Regex(@"'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+", RegexOptions.Compiled),
+                tokenizerRegex: ModelParamsGeneratorRegex.Regex50KBase(),
                 mergeableRanks: mergeableRanks,
                 specialTokens: specialTokens
             );
@@ -114,10 +114,25 @@ namespace SharpToken
 
             return new ModelParams
             (
-                tokenizerRegex: new Regex(@"(?i:'s|'t|'re|'ve|'m|'ll|'d)|[^\r\n\p{L}\p{N}]?\p{L}+|\p{N}{1,3}| ?[^\s\p{L}\p{N}]+[\r\n]*|\s*[\r\n]+|\s+(?!\S)|\s+", RegexOptions.Compiled),
+                tokenizerRegex: ModelParamsGeneratorRegex.RegexCl100KBase(),
                 mergeableRanks: mergeableRanks,
                 specialTokens: specialTokens
             );
         }
+    }
+
+    internal sealed partial class ModelParamsGeneratorRegex
+    {
+#if NET8_0_OR_GREATER
+        [GeneratedRegex(@"'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+")]
+        public static partial Regex Regex50KBase();
+
+        [GeneratedRegex(@"(?i:'s|'t|'re|'ve|'m|'ll|'d)|[^\r\n\p{L}\p{N}]?\p{L}+|\p{N}{1,3}| ?[^\s\p{L}\p{N}]+[\r\n]*|\s*[\r\n]+|\s+(?!\S)|\s+")]
+        public static partial Regex RegexCl100KBase();
+#else
+        public static Regex Regex50KBase() => new Regex(@"'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+", RegexOptions.Compiled);
+
+        public static Regex RegexCl100KBase() => new Regex(@"(?i:'s|'t|'re|'ve|'m|'ll|'d)|[^\r\n\p{L}\p{N}]?\p{L}+|\p{N}{1,3}| ?[^\s\p{L}\p{N}]+[\r\n]*|\s*[\r\n]+|\s+(?!\S)|\s+", RegexOptions.Compiled);
+#endif
     }
 }
