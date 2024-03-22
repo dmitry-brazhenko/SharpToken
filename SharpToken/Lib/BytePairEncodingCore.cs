@@ -11,23 +11,18 @@ namespace SharpToken
     internal sealed class BytePairEncodingCore
     {
         public BytePairEncodingCore(
-            Dictionary<byte[], int> bytePairEncoder = null,
-            Dictionary<string, int> specialTokenEncoder = null,
-            Regex tokenPatternRegex = null
+            Dictionary<byte[], int> bytePairEncoder,
+            Dictionary<string, int> specialTokenEncoder,
+            Regex tokenPatternRegex
         )
         {
             var comparer = new ByteArrayEqualityComparer();
-            Encoder = bytePairEncoder == null
-                ? new Dictionary<byte[], int>(comparer)
-                : new Dictionary<byte[], int>(bytePairEncoder, comparer);
-            Decoder = bytePairEncoder?.ToDictionary(pair => pair.Value, pair => pair.Key)
-                      ?? new Dictionary<int, byte[]>();
+            Encoder = new Dictionary<byte[], int>(bytePairEncoder, comparer);
+            Decoder = bytePairEncoder.ToDictionary(pair => pair.Value, pair => pair.Key);
 
-            SpecialTokensEncoder = specialTokenEncoder ?? new Dictionary<string, int>();
-            SpecialTokensDecoder =
-                specialTokenEncoder?.ToDictionary(pair => pair.Value, pair => Encoding.UTF8.GetBytes(pair.Key))
-                ?? new Dictionary<int, byte[]>();
-            RegexTls = tokenPatternRegex ?? new Regex("");
+            SpecialTokensEncoder = specialTokenEncoder;
+            SpecialTokensDecoder = specialTokenEncoder.ToDictionary(pair => pair.Value, pair => Encoding.UTF8.GetBytes(pair.Key));
+            RegexTls = tokenPatternRegex;
 
             try
             {

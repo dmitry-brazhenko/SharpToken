@@ -1,23 +1,25 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
+
 
 namespace SharpToken
 {
     internal readonly struct ModelParams
     {
         public int? ExplicitNVocab { get; }
-        public string PatStr { get; }
+        public Regex TokenizerRegex { get; }
         public Dictionary<byte[], int> MergeableRanks { get; }
         public Dictionary<string, int> SpecialTokens { get; }
 
         public ModelParams(
             int? explicitNVocab = null,
-            string patStr = null,
+            Regex tokenizerRegex = null,
             Dictionary<byte[], int> mergeableRanks = null,
             Dictionary<string, int> specialTokens = null)
         {
             ExplicitNVocab = explicitNVocab;
-            PatStr = patStr;
+            TokenizerRegex = tokenizerRegex;
             MergeableRanks = mergeableRanks;
             SpecialTokens = specialTokens ?? new Dictionary<string, int>();
         }
@@ -60,10 +62,10 @@ namespace SharpToken
 
             return new ModelParams
             (
-                50257,
-                @"'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+",
-                mergeableRanks,
-                new Dictionary<string, int> { { EndOfText, 50256 } }
+                explicitNVocab: 50257,
+                tokenizerRegex: new Regex(@"'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+", RegexOptions.Compiled),
+                mergeableRanks: mergeableRanks,
+                specialTokens: new Dictionary<string, int> { { EndOfText, 50256 } }
             );
         }
 
@@ -73,10 +75,10 @@ namespace SharpToken
 
             return new ModelParams
             (
-                50281,
-                @"'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+",
-                mergeableRanks,
-                new Dictionary<string, int> { { EndOfText, 50256 } }
+                explicitNVocab: 50281,
+                tokenizerRegex: new Regex(@"'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+", RegexOptions.Compiled),
+                mergeableRanks: mergeableRanks,
+                specialTokens: new Dictionary<string, int> { { EndOfText, 50256 } }
             );
         }
 
@@ -84,14 +86,11 @@ namespace SharpToken
         {
             var mergeableRanks = EmbeddedResourceReader.LoadTokenBytePairEncoding("SharpToken.data.p50k_base.tiktoken");
 
-            var specialTokens = new Dictionary<string, int>
-            {
-                { EndOfText, 50256 }, { FimPrefix, 50281 }, { FimMiddle, 50282 }, { FimSuffix, 50283 }
-            };
+            var specialTokens = new Dictionary<string, int> { { EndOfText, 50256 }, { FimPrefix, 50281 }, { FimMiddle, 50282 }, { FimSuffix, 50283 } };
 
             return new ModelParams
             (
-                patStr: @"'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+",
+                tokenizerRegex: new Regex(@"'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+", RegexOptions.Compiled),
                 mergeableRanks: mergeableRanks,
                 specialTokens: specialTokens
             );
@@ -99,8 +98,7 @@ namespace SharpToken
 
         private static ModelParams Cl100KBase()
         {
-            var mergeableRanks =
-                EmbeddedResourceReader.LoadTokenBytePairEncoding("SharpToken.data.cl100k_base.tiktoken");
+            var mergeableRanks = EmbeddedResourceReader.LoadTokenBytePairEncoding("SharpToken.data.cl100k_base.tiktoken");
 
             var specialTokens = new Dictionary<string, int>
             {
@@ -113,8 +111,7 @@ namespace SharpToken
 
             return new ModelParams
             (
-                patStr:
-                @"(?i:'s|'t|'re|'ve|'m|'ll|'d)|[^\r\n\p{L}\p{N}]?\p{L}+|\p{N}{1,3}| ?[^\s\p{L}\p{N}]+[\r\n]*|\s*[\r\n]+|\s+(?!\S)|\s+",
+                tokenizerRegex: new Regex(@"(?i:'s|'t|'re|'ve|'m|'ll|'d)|[^\r\n\p{L}\p{N}]?\p{L}+|\p{N}{1,3}| ?[^\s\p{L}\p{N}]+[\r\n]*|\s*[\r\n]+|\s+(?!\S)|\s+", RegexOptions.Compiled),
                 mergeableRanks: mergeableRanks,
                 specialTokens: specialTokens
             );

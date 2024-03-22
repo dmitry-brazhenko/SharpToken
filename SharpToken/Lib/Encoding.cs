@@ -11,7 +11,7 @@ namespace SharpToken
         private readonly BytePairEncodingCore _bytePairEncodingCoreProcessor;
         private readonly Dictionary<string, int> _specialTokenMappings;
 
-        private GptEncoding(string patternString,
+        private GptEncoding(Regex tokenizerRegex,
             Dictionary<byte[], int> bytePairRanks,
             Dictionary<string, int> specialTokenMappings,
             int? explicitNVocab = null)
@@ -36,8 +36,7 @@ namespace SharpToken
                 }
             }
 
-            _bytePairEncodingCoreProcessor =
-                new BytePairEncodingCore(bytePairRanks, specialTokenMappings, new Regex(patternString));
+            _bytePairEncodingCoreProcessor = new BytePairEncodingCore(bytePairRanks, specialTokenMappings, tokenizerRegex);
         }
 
         private int MaxTokenValue { get; }
@@ -46,8 +45,13 @@ namespace SharpToken
         {
             var modelParams = ModelParamsGenerator.GetModelParams(encodingName);
 
-            var encoding = new GptEncoding(modelParams.PatStr, modelParams.MergeableRanks,
-                modelParams.SpecialTokens, modelParams.ExplicitNVocab);
+            var encoding = new GptEncoding(
+                modelParams.TokenizerRegex,
+                modelParams.MergeableRanks,
+                modelParams.SpecialTokens,
+                modelParams.ExplicitNVocab
+            );
+
             return encoding;
         }
 
