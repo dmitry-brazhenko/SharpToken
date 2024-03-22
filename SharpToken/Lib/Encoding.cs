@@ -12,7 +12,7 @@ namespace SharpToken
         private readonly Dictionary<string, int> _specialTokenMappings;
 
         private GptEncoding(Regex tokenizerRegex,
-            Dictionary<byte[], int> bytePairRanks,
+            BytePairIndex bytePairRanks,
             Dictionary<string, int> specialTokenMappings,
             int? explicitNVocab = null)
         {
@@ -124,9 +124,9 @@ namespace SharpToken
             return Encoding.UTF8.GetString(decodedBytes);
         }
 
-        private static int GetMaxValueFromDictionary(Dictionary<byte[], int> dictionary)
+        private static int GetMaxValueFromDictionary(BytePairIndex dictionary)
         {
-            return dictionary.Values.Prepend(0).Max();
+            return dictionary.Select(_ => _.Value).Prepend(0).Max();
         }
 
         private static int GetMaxValueFromDictionary(Dictionary<string, int> dictionary)

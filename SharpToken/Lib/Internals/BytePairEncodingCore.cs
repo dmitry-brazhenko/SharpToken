@@ -11,13 +11,12 @@ namespace SharpToken
     internal sealed class BytePairEncodingCore
     {
         public BytePairEncodingCore(
-            Dictionary<byte[], int> bytePairEncoder,
+            BytePairIndex bytePairEncoder,
             Dictionary<string, int> specialTokenEncoder,
             Regex tokenPatternRegex
         )
         {
-            var comparer = new ByteArrayEqualityComparer();
-            Encoder = new Dictionary<byte[], int>(bytePairEncoder, comparer);
+            Encoder = bytePairEncoder;
             Decoder = bytePairEncoder.ToDictionary(pair => pair.Value, pair => pair.Key);
 
             SpecialTokensEncoder = specialTokenEncoder;
@@ -25,7 +24,7 @@ namespace SharpToken
             RegexTls = tokenPatternRegex;
         }
 
-        public Dictionary<byte[], int> Encoder { get; }
+        public BytePairIndex Encoder { get; }
         public Dictionary<string, int> SpecialTokensEncoder { get; }
         public Dictionary<int, byte[]> Decoder { get; }
         public Dictionary<int, byte[]> SpecialTokensDecoder { get; }
@@ -134,7 +133,7 @@ namespace SharpToken
                    SpecialTokensDecoder.TryGetValue(token, out tokenBytes);
         }
 
-        private static IEnumerable<T> BytePairMerge<T>(byte[] piece, IReadOnlyDictionary<byte[], int> ranks,
+        private static IEnumerable<T> BytePairMerge<T>(byte[] piece, BytePairIndex ranks,
             Func<(int Start, int End), T> f)
         {
             var partitions = Enumerable.Range(0, piece.Length + 1)
@@ -201,7 +200,7 @@ namespace SharpToken
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static IEnumerable<int> BytePairEncode(byte[] inputBytes, Dictionary<byte[], int> bytePairRanks)
+        private static IEnumerable<int> BytePairEncode(byte[] inputBytes, BytePairIndex bytePairRanks)
         {
             if (inputBytes.Length == 1)
             {

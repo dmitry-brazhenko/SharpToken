@@ -26,15 +26,17 @@ namespace SharpToken
             return content.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
         }
 
-        public static Dictionary<byte[], int> LoadTokenBytePairEncoding(string dataSourceName)
+        public static BytePairIndex LoadTokenBytePairEncoding(string dataSourceName)
         {
             var contents = ReadEmbeddedResourceAsLines(dataSourceName).Where(line => !string.IsNullOrEmpty(line))
                 .Select(line => line.Split(' ').Where(l => !string.IsNullOrWhiteSpace(l)).ToArray()).ToArray();
 
-            return contents.ToDictionary(
+            var values = contents.ToDictionary(
                 splitLine => Convert.FromBase64String(splitLine[0]),
                 splitLine => int.Parse(splitLine[1], CultureInfo.InvariantCulture)
             );
+
+            return new BytePairIndex(values);
         }
     }
 }

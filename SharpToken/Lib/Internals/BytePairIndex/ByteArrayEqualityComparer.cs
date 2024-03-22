@@ -5,6 +5,8 @@ namespace SharpToken
 {
     internal sealed class ByteArrayEqualityComparer : IEqualityComparer<byte[]>
     {
+        public static ByteArrayEqualityComparer Instance = new ByteArrayEqualityComparer();
+
         // Constants used in the GetHashCode method.
         private const int SampleSizeDivider = 16;
         private const int InitialHashValue = 17;

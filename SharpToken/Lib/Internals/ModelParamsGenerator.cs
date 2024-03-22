@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
@@ -8,13 +9,13 @@ namespace SharpToken
     {
         public int? ExplicitNVocab { get; }
         public Regex TokenizerRegex { get; }
-        public Dictionary<byte[], int> MergeableRanks { get; }
+        public BytePairIndex MergeableRanks { get; }
         public Dictionary<string, int> SpecialTokens { get; }
 
         public ModelParams(
             int? explicitNVocab = null,
             Regex tokenizerRegex = null,
-            Dictionary<byte[], int> mergeableRanks = null,
+            BytePairIndex mergeableRanks = null,
             Dictionary<string, int> specialTokens = null)
         {
             ExplicitNVocab = explicitNVocab;
