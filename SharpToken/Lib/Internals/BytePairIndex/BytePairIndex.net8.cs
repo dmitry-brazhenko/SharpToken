@@ -10,6 +10,7 @@ namespace SharpToken;
 
 /// <summary>
 /// Provides a fast byte[] lookup using multibyte cpu instructions introduced in net8.0
+/// Supports <see cref="ReadOnlySpan{byte}"/> as lookup key.
 /// NOTE: it takes long to initialize but provides faster reads then a Dictionary.
 /// </summary>
 internal sealed class BytePairIndex : IReadOnlyCollection<KeyValuePair<byte[], int>>

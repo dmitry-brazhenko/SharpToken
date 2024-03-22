@@ -13,6 +13,24 @@ in `..\SharpToken\SharpToken.Benchmark\bin\Release\net8.0\SharpToken.Benchmark.e
 ## Results:
 
 
+### commit | feat(performance): cache model parameters to do params preparation only once | version: 1.2.17 + improvements: 
+
+BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3155/23H2/2023Update/SunValley3)
+AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
+.NET SDK 8.0.200
+  [Host]               : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET 6.0             : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
+  .NET 8.0             : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET Framework 4.7.1 : .NET Framework 4.8.1 (4.8.9181.0), X64 RyuJIT VectorSize=256
+
+
+| Method | Job                  | Runtime              | Mean       | Error    | StdDev   | Ratio | Gen0     | Gen1    | Allocated  | Alloc Ratio |
+|------- |--------------------- |--------------------- |-----------:|---------:|---------:|------:|---------:|--------:|-----------:|------------:|
+| Encode | .NET 6.0             | .NET 6.0             | 1,203.7 us | 13.06 us | 10.20 us |  0.63 | 105.4688 |  9.7656 |  876.44 KB |        0.84 |
+| Encode | .NET 8.0             | .NET 8.0             |   975.9 us |  9.80 us |  9.16 us |  0.51 | 105.4688 |  7.8125 |  867.94 KB |        0.83 |
+| Encode | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 1,917.3 us | 17.89 us | 14.94 us |  1.00 | 169.9219 | 15.6250 | 1045.58 KB |        1.00 |
+
+
 ### commit | feat(performance): replace SpecialTokenPatternRegex with faster alloc free solution | version: 1.2.17 + improvements
 
 BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3155/23H2/2023Update/SunValley3)
