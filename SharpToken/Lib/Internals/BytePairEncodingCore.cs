@@ -23,17 +23,6 @@ namespace SharpToken
             SpecialTokensEncoder = specialTokenEncoder;
             SpecialTokensDecoder = specialTokenEncoder.ToDictionary(pair => pair.Value, pair => Encoding.UTF8.GetBytes(pair.Key));
             RegexTls = tokenPatternRegex;
-
-            try
-            {
-                var parts = SpecialTokensEncoder.Keys.Select(Regex.Escape);
-                var joinedParts = string.Join("|", parts);
-                SpecialTokenPatternRegex = new Regex(joinedParts);
-            }
-            catch (ArgumentException e)
-            {
-                throw new ArgumentException("Invalid regular expression pattern.", e);
-            }
         }
 
         public Dictionary<byte[], int> Encoder { get; }
@@ -41,7 +30,6 @@ namespace SharpToken
         public Dictionary<int, byte[]> Decoder { get; }
         public Dictionary<int, byte[]> SpecialTokensDecoder { get; }
         public Regex RegexTls { get; }
-        public Regex SpecialTokenPatternRegex { get; }
 
         public (List<int>, int) EncodeNative(string text, ISet<string> allowedSpecial)
         {
@@ -49,10 +37,15 @@ namespace SharpToken
             var startIndex = 0;
             var lastTokenLength = 0;
 
+            var allowedSpecialTokens = allowedSpecial.Count == 0
+                ? Array.Empty<string>()
+                : SpecialTokensEncoder.Keys
+                    .Where(allowedSpecial.Contains)
+                    .ToArray();
+
             while (true)
             {
-                var nextSpecialStartIndex =
-                    FindNextSpecialStartIndex(text, allowedSpecial, startIndex, SpecialTokenPatternRegex);
+                var nextSpecialStartIndex = FindNextSpecialStartIndex(text, allowedSpecialTokens, startIndex);
 
                 var endIndex = nextSpecialStartIndex ?? text.Length;
                 var textSegment = text.Substring(startIndex, endIndex - startIndex);
@@ -91,14 +84,13 @@ namespace SharpToken
             return (encodedTokens, lastTokenLength);
         }
 
-        private static int? FindNextSpecialStartIndex(string text, ISet<string> allowedSpecial, int startIndex,
-            Regex specialRegex)
+        private static int? FindNextSpecialStartIndex(string text, string[] allowedSpecial, int startIndex)
         {
             var searchIndex = startIndex;
 
             while (true)
             {
-                var nextSpecialMatch = specialRegex.Match(text, searchIndex);
+                var nextSpecialMatch = allowedSpecial.FindMatch(text, searchIndex);
 
                 if (!nextSpecialMatch.Success)
                 {
