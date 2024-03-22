@@ -33,27 +33,30 @@ namespace SharpToken
         private const string FimSuffix = "<|fim_suffix|>";
         private const string EndOfPrompt = "<|endofprompt|>";
 
+        private static readonly ConcurrentDictionary<string, ModelParams> Cache = new ConcurrentDictionary<string, ModelParams>();
+
         public static ModelParams GetModelParams(string encodingName)
         {
-            switch (encodingName.ToLower())
+            return Cache.GetOrAdd(encodingName.ToLower(), key =>
             {
-                case "r50k_base":
-                    return R50KBase();
+                switch (encodingName.ToLower())
+                {
+                    case "r50k_base":
+                        return R50KBase();
 
-                case "p50k_base":
-                    return P50KBase();
+                    case "p50k_base":
+                        return P50KBase();
 
-                case "p50k_edit":
-                    return P50KEdit();
+                    case "p50k_edit":
+                        return P50KEdit();
 
-                case "cl100k_base":
-                    return Cl100KBase();
+                    case "cl100k_base":
+                        return Cl100KBase();
 
-                default:
-                    throw new ArgumentException($"Unknown encoding name: {encodingName}");
-            }
-
-            ;
+                    default:
+                        throw new ArgumentException($"Unknown encoding name: {encodingName}");
+                }
+            });
         }
 
         private static ModelParams R50KBase()
