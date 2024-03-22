@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -19,7 +20,7 @@ namespace SharpToken
             Encoder = bytePairEncoder == null
                 ? new Dictionary<byte[], int>(comparer)
                 : new Dictionary<byte[], int>(bytePairEncoder, comparer);
-            Decoder = bytePairEncoder?.ToDictionary(pair => pair.Value, pair => pair.Key.ToArray())
+            Decoder = bytePairEncoder?.ToDictionary(pair => pair.Value, pair => pair.Key)
                       ?? new Dictionary<int, byte[]>();
 
             SpecialTokensEncoder = specialTokenEncoder ?? new Dictionary<string, int>();
@@ -28,10 +29,10 @@ namespace SharpToken
                 ?? new Dictionary<int, byte[]>();
             RegexTls = tokenPatternRegex ?? new Regex("");
 
-            var parts = SpecialTokensEncoder.Keys.Select(Regex.Escape).ToArray();
-            var joinedParts = string.Join("|", parts);
             try
             {
+                var parts = SpecialTokensEncoder.Keys.Select(Regex.Escape);
+                var joinedParts = string.Join("|", parts);
                 SpecialTokenPatternRegex = new Regex(joinedParts);
             }
             catch (ArgumentException e)
@@ -64,20 +65,22 @@ namespace SharpToken
                 foreach (var match in RegexTls.Matches(textSegment).Cast<Match>())
                 {
                     var encodedPiece = Encoding.UTF8.GetBytes(match.Value);
-                    if (Encoder.TryGetValue(encodedPiece, out var token))
-                    {
-                        lastTokenLength = 1;
-                        encodedTokens.Add(token);
-                        continue;
-                    }
 
-                    var tokens = BytePairEncode(encodedPiece, Encoder).ToList();
-                    lastTokenLength = tokens.Count;
-                    encodedTokens.AddRange(tokens);
+                    lastTokenLength = 0;
+                    foreach (var token in BytePairEncode(encodedPiece, Encoder))
+                    {
+                        encodedTokens.Add(token);
+                        lastTokenLength++;
+                    }
                 }
 
                 if (nextSpecialStartIndex.HasValue)
                 {
+                    /*
+                     * This looks like a bug!
+                     * In case `text` contains a specialToken in the middle like "lorem ipsum <specialToken> foobar".
+                     * Then text substring equals: "<specialToken> foobar" witch will not be found in `SpecialTokensEncoder`.
+                     */
                     var specialToken = text.Substring(nextSpecialStartIndex.Value);
                     var specialTokenValue = SpecialTokensEncoder[specialToken];
                     encodedTokens.Add(specialTokenValue);
@@ -140,10 +143,10 @@ namespace SharpToken
                    SpecialTokensDecoder.TryGetValue(token, out tokenBytes);
         }
 
-        private static T[] BytePairMerge<T>(IReadOnlyCollection<byte> piece, IReadOnlyDictionary<byte[], int> ranks,
+        private static IEnumerable<T> BytePairMerge<T>(byte[] piece, IReadOnlyDictionary<byte[], int> ranks,
             Func<(int Start, int End), T> f)
         {
-            var partitions = Enumerable.Range(0, piece.Count + 1)
+            var partitions = Enumerable.Range(0, piece.Length + 1)
                 .Select(i => (Start: i, Rank: int.MaxValue))
                 .ToList();
 
@@ -154,10 +157,7 @@ namespace SharpToken
                     return null;
                 }
 
-                var key = piece.Skip(partitionsList[startIndex].Start)
-                    .Take(partitionsList[startIndex + skip + 2].Start - partitionsList[startIndex].Start)
-                    .ToArray();
-
+                var key = piece.Slice(partitionsList[startIndex].Start, partitionsList[startIndex + skip + 2].Start);
                 return ranks.TryGetValue(key, out var rank) ? rank : (int?)null;
             }
 
@@ -203,25 +203,23 @@ namespace SharpToken
                 }
             }
 
-            var output = new List<T>(partitions.Count - 1);
             for (var i = 0; i < partitions.Count - 1; i++)
             {
-                output.Add(f((partitions[i].Start, partitions[i + 1].Start)));
+                yield return f((partitions[i].Start, partitions[i + 1].Start));
             }
-
-            return output.ToArray();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static IEnumerable<int> BytePairEncode(byte[] inputBytes, Dictionary<byte[], int> bytePairRanks)
         {
             if (inputBytes.Length == 1)
             {
-                return new List<int> { bytePairRanks[inputBytes] }.ToArray();
+                return new int[] { bytePairRanks[inputBytes] };
             }
 
             return BytePairMerge(inputBytes, bytePairRanks, pair =>
             {
-                var key = inputBytes.Skip(pair.Start).Take(pair.End - pair.Start).ToArray();
+                var key = inputBytes.Slice(pair.Start, pair.End);
                 return bytePairRanks[key];
             });
         }

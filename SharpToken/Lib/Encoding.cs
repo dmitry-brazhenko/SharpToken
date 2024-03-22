@@ -59,12 +59,7 @@ namespace SharpToken
 
         private static string SpecialTokenRegex(ISet<string> tokens)
         {
-            var escapedTokens = new List<string>();
-            foreach (var token in tokens)
-            {
-                escapedTokens.Add(Regex.Escape(token));
-            }
-
+            var escapedTokens = tokens.Select(Regex.Escape);
             var inner = string.Join("|", escapedTokens);
             return $"({inner})";
         }
@@ -98,8 +93,7 @@ namespace SharpToken
 
             if (disallowedSpecial.Count > 0)
             {
-                var disallowedSpecialFrozen = new HashSet<string>(disallowedSpecial);
-                var regexPattern = SpecialTokenRegex(disallowedSpecialFrozen);
+                var regexPattern = SpecialTokenRegex(disallowedSpecial);
                 var match = Regex.Match(lineToEncode, regexPattern);
                 if (match.Success)
                 {
