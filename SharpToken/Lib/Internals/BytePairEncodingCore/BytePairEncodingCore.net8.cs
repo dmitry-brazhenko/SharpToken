@@ -4,7 +4,6 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -63,9 +62,18 @@ internal sealed class BytePairEncodingCore
                 try
                 {
                     var size = Encoding.UTF8.GetBytes(segment, buffer);
-                    var encodedPiece = buffer.AsSpan(..size);
+                    var piece = buffer.AsSpan(..size);
 
-                    foreach (var token in BytePairEncode(encodedPiece))
+                    if (piece.Length == 1)
+                    {
+                        encodedTokens.Add(Encoder[piece]);
+                        continue;
+                    }
+
+                    var bytePairEncoder = new MultiBytePairEncoder(piece, Encoder);
+                    var tokens = bytePairEncoder.GetTokens();
+
+                    foreach (var token in tokens)
                     {
                         encodedTokens.Add(token);
                     }
@@ -112,86 +120,6 @@ internal sealed class BytePairEncodingCore
     {
         return Decoder.TryGetValue(token, out tokenBytes) ||
                SpecialTokensDecoder.TryGetValue(token, out tokenBytes);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private List<int> BytePairEncode(ReadOnlySpan<byte> piece)
-    {
-        if (piece.Length == 1)
-        {
-            return [Encoder[piece]];
-        }
-
-        var partitions = Enumerable.Range(0, piece.Length + 1)
-            .Select(i => (Start: i, Rank: int.MaxValue))
-            .ToList();
-
-
-        for (var i = 0; i < partitions.Count - 2; i++)
-        {
-            var rank = GetRank(piece, partitions, i, 0);
-            if (rank.HasValue)
-            {
-                partitions[i] = (partitions[i].Start, rank.Value);
-            }
-        }
-
-        while (partitions.Count > 1)
-        {
-            var minRank = int.MaxValue;
-            var minRankIdx = 0;
-
-            for (var i = 0; i < partitions.Count - 1; i++)
-            {
-                if (partitions[i].Rank < minRank)
-                {
-                    minRank = partitions[i].Rank;
-                    minRankIdx = i;
-                }
-            }
-
-            if (minRank != int.MaxValue)
-            {
-                partitions[minRankIdx] = (partitions[minRankIdx].Start,
-                    GetRank(piece, partitions, minRankIdx, 1) ?? int.MaxValue);
-
-                if (minRankIdx > 0)
-                {
-                    partitions[minRankIdx - 1] = (partitions[minRankIdx - 1].Start,
-                        GetRank(piece, partitions, minRankIdx - 1, 1) ?? int.MaxValue);
-                }
-
-                partitions.RemoveAt(minRankIdx + 1);
-            }
-            else
-            {
-                break;
-            }
-        }
-
-        var output = new List<int>(partitions.Count - 1);
-        for (var i = 0; i < partitions.Count - 1; i++)
-        {
-            var key = piece[partitions[i].Start..partitions[i + 1].Start];
-            var token = Encoder[key];
-            output.Add(token);
-        }
-
-        return output;
-
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        int? GetRank(ReadOnlySpan<byte> piece, IReadOnlyList<(int Start, int Rank)> partitionsList, int startIndex, int skip)
-        {
-            var endIndex = startIndex + skip + 2;
-            if (endIndex >= partitionsList.Count)
-            {
-                return null;
-            }
-
-            var key = piece[partitionsList[startIndex].Start..partitionsList[endIndex].Start];
-            return Encoder.TryGetValue(key, out var rank) ? rank : null;
-        }
     }
 }
 
