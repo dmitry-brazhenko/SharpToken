@@ -4,9 +4,9 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
-
 
 namespace SharpToken;
 
@@ -32,17 +32,11 @@ internal sealed class BytePairEncodingCore
     public Dictionary<int, byte[]> SpecialTokensDecoder { get; }
     public Regex RegexTls { get; }
 
-    public List<int> EncodeNative(ReadOnlySpan<char> text, ISet<string> allowedSpecial)
+    public List<int> EncodeNative(ReadOnlySpan<char> text, IReadOnlyCollection<string> allowedSpecialTokens)
     {
         var encodedTokens = new List<int>();
         var startIndex = 0;
         var pool = ArrayPool<byte>.Shared;
-
-        var allowedSpecialTokens = allowedSpecial.Count == 0
-            ? Array.Empty<string>()
-            : SpecialTokensEncoder.Keys
-                .Where(allowedSpecial.Contains)
-                .ToArray();
 
         while (true)
         {
@@ -116,6 +110,7 @@ internal sealed class BytePairEncodingCore
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool TryDecodeToken(int token, out byte[] tokenBytes)
     {
         return Decoder.TryGetValue(token, out tokenBytes) ||

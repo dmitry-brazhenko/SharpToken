@@ -50,7 +50,7 @@ namespace SharpToken
 #endif
     }
 
-    internal struct FoundMatch
+    internal ref struct FoundMatch
     {
         public bool Success { get; set; }
         public string Value { get; set; }

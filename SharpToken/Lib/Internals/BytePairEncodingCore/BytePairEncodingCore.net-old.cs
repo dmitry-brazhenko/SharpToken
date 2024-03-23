@@ -1,5 +1,4 @@
 #if !NET8_0_OR_GREATER
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -31,16 +30,10 @@ namespace SharpToken
         public Dictionary<int, byte[]> SpecialTokensDecoder { get; }
         public Regex RegexTls { get; }
 
-        public List<int> EncodeNative(string text, ISet<string> allowedSpecial)
+        public List<int> EncodeNative(string text, IReadOnlyCollection<string> allowedSpecialTokens)
         {
             var encodedTokens = new List<int>();
             var startIndex = 0;
-
-            var allowedSpecialTokens = allowedSpecial.Count == 0
-                ? Array.Empty<string>()
-                : SpecialTokensEncoder.Keys
-                    .Where(allowedSpecial.Contains)
-                    .ToArray();
 
             while (true)
             {

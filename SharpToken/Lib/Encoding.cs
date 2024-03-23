@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
+
 namespace SharpToken
 {
     public class GptEncoding
@@ -16,7 +17,7 @@ namespace SharpToken
             Dictionary<string, int> specialTokenMappings,
             int? explicitNVocab = null)
         {
-            MaxTokenValue = Math.Max(
+            var maxTokenValue = Math.Max(
                 GetMaxValueFromDictionary(bytePairRanks),
                 GetMaxValueFromDictionary(specialTokenMappings)
             );
@@ -30,7 +31,7 @@ namespace SharpToken
                         "The number of mergeable tokens and special tokens must be equal to explicit_n_vocab.");
                 }
 
-                if (MaxTokenValue != explicitNVocab.Value - 1)
+                if (maxTokenValue != explicitNVocab.Value - 1)
                 {
                     throw new ArgumentException("The maximum token value must be equal to explicit_n_vocab - 1.");
                 }
@@ -38,8 +39,6 @@ namespace SharpToken
 
             _bytePairEncodingCoreProcessor = new BytePairEncodingCore(bytePairRanks, specialTokenMappings, tokenizerRegex);
         }
-
-        private int MaxTokenValue { get; }
 
         public static GptEncoding GetEncoding(string encodingName)
         {
@@ -74,39 +73,29 @@ namespace SharpToken
         public List<int> Encode(string lineToEncode, ISet<string> allowedSpecial = null, ISet<string> disallowedSpecial = null)
         {
 #endif
-            var specialTokensSet = new HashSet<string>(_specialTokenMappings.Keys);
+            var allowedSpecialTokens = allowedSpecial is null
+                // When null allow nothing
+                ? Array.Empty<string>()
+                : allowedSpecial.Contains("all")
+                    ? (IReadOnlyCollection<string>) _specialTokenMappings.Keys
+                    // filter / validate list to only known special tokens:
+                    : (IReadOnlyCollection<string>) _specialTokenMappings.Keys.Where(allowedSpecial.Contains).ToArray();
 
-            if (allowedSpecial == null)
+            var disallowedSpecialTokens = disallowedSpecial == null || disallowedSpecial.Contains("all")
+                // When null or all -> initialize with all except allowed
+                ? allowedSpecial is null
+                    ? _specialTokenMappings.Keys
+                    : _specialTokenMappings.Keys.Where(_ => !allowedSpecial.Contains(_))
+                // Else use provided list
+                : disallowedSpecial;
+
+            var match = disallowedSpecialTokens.FindMatch(lineToEncode);
+            if (match.Success)
             {
-                allowedSpecial = new HashSet<string>();
+                throw new ArgumentException($"Disallowed special token found: {match.Value}");
             }
 
-            if (disallowedSpecial == null)
-            {
-                disallowedSpecial = new HashSet<string> { "all" };
-            }
-
-            if (disallowedSpecial.Contains("all"))
-            {
-                disallowedSpecial = new HashSet<string>(specialTokensSet);
-                disallowedSpecial.ExceptWith(allowedSpecial);
-            }
-
-            if (allowedSpecial.Contains("all"))
-            {
-                allowedSpecial = specialTokensSet;
-            }
-
-            if (disallowedSpecial.Count > 0)
-            {
-                var match = disallowedSpecial.FindMatch(lineToEncode);
-                if (match.Success)
-                {
-                    throw new ArgumentException($"Disallowed special token found: {match.Value}");
-                }
-            }
-
-            var encodedLine = _bytePairEncodingCoreProcessor.EncodeNative(lineToEncode, allowedSpecial);
+            var encodedLine = _bytePairEncodingCoreProcessor.EncodeNative(lineToEncode, allowedSpecialTokens);
             return encodedLine;
         }
 
