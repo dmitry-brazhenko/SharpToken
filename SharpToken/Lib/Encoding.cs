@@ -93,7 +93,9 @@ namespace SharpToken
 #else
             string lineToEncode,
 #endif
-            ISet<string> allowedSpecial = null, ISet<string> disallowedSpecial = null)
+            ISet<string> allowedSpecial = null,
+            ISet<string> disallowedSpecial = null
+        )
         {
             var (tokens, _) = EncodeCore(lineToEncode, allowedSpecial, disallowedSpecial, countOnly: false);
             return tokens;
@@ -102,7 +104,11 @@ namespace SharpToken
 #if NET8_0_OR_GREATER
         // keep this overload because it was part of previous public API.
         // It could be removed if desired.
-        public List<int> Encode(string lineToEncode, ISet<string> allowedSpecial = null, ISet<string> disallowedSpecial = null)
+        public List<int> Encode(
+            string lineToEncode,
+            ISet<string> allowedSpecial = null,
+            ISet<string> disallowedSpecial = null
+        )
         {
             var (tokens, _) = EncodeCore(lineToEncode.AsSpan(), allowedSpecial, disallowedSpecial, countOnly: false);
             return tokens;

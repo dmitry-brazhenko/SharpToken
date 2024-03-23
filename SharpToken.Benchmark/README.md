@@ -10,6 +10,30 @@ in `..\SharpToken\SharpToken.Benchmark\bin\Release\net8.0\SharpToken.Benchmark.e
 
 ## Results:
 
+### feat(performance): reduce minor allocations
+
+- version: 1.2.17 + improvements
+
+```
+BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3155/23H2/2023Update/SunValley3)
+AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
+.NET SDK 8.0.200
+  [Host]               : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET 6.0             : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
+  .NET 8.0             : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET Framework 4.7.1 : .NET Framework 4.8.1 (4.8.9181.0), X64 RyuJIT VectorSize=256
+```
+
+| Method      | Job                  | Runtime              | Mean       | Error    | StdDev   | Ratio | Gen0     | Gen1   | Allocated | Alloc Ratio |
+|------------ |--------------------- |--------------------- |-----------:|---------:|---------:|------:|---------:|-------:|----------:|------------:|
+| Encode      | .NET 6.0             | .NET 6.0             |   818.8 us | 16.27 us | 17.41 us |  0.67 |  62.5000 | 0.9766 | 511.75 KB |        0.82 |
+| Encode      | .NET 8.0             | .NET 8.0             |   551.0 us |  2.82 us |  2.21 us |  0.45 |   2.9297 |      - |  27.19 KB |        0.04 |
+| Encode      | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 1,232.3 us |  5.40 us |  4.79 us |  1.00 | 101.5625 | 1.9531 | 625.07 KB |        1.00 |
+|             |                      |                      |            |          |          |       |          |        |           |             |
+| CountTokens | .NET 6.0             | .NET 6.0             |   802.6 us |  7.71 us |  7.21 us |  0.64 |  58.5938 | 0.9766 | 484.75 KB |       0.806 |
+| CountTokens | .NET 8.0             | .NET 8.0             |   553.1 us |  3.97 us |  3.52 us |  0.44 |        - |      - |   4.06 KB |       0.007 |
+| CountTokens | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 1,247.6 us | 16.49 us | 14.62 us |  1.00 |  97.6563 | 1.9531 | 601.37 KB |       1.000 |
+
 
 ### feat(benchmark): don't make allocations in benchmark methods
 

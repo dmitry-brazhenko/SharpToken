@@ -1,8 +1,8 @@
 #if !NET8_0_OR_GREATER
 #if NET
-using System;
 using System.Buffers;
 #endif
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -37,7 +37,7 @@ namespace SharpToken
 
         public (List<int> tokens, int count) EncodeNative(string text, IReadOnlyCollection<string> allowedSpecialTokens, bool countOnly)
         {
-            var encodedTokens = countOnly ? null : new List<int>();
+            var encodedTokens = countOnly ? null : new List<int>((int) Math.Ceiling(text.Length / 4d) is var capacity && capacity > 4 ? capacity : 4);
             var startIndex = 0;
             var count = 0;
 #if NET

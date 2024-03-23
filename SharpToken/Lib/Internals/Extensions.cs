@@ -10,6 +10,11 @@ namespace SharpToken
 #if NET8_0_OR_GREATER
         public static FoundMatch FindMatch(this IEnumerable<string> searchValues, ReadOnlySpan<char> text)
         {
+            if (searchValues is string[] { Length: 0 })
+            {
+                return new FoundMatch { Success = false };
+            }
+
             foreach (var searchValue in searchValues)
             {
                 // uses modern multibyte cpu instructions

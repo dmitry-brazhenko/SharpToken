@@ -35,7 +35,7 @@ internal sealed class BytePairEncodingCore
 
     public (List<int> tokens, int count) EncodeNative(ReadOnlySpan<char> text, IReadOnlyCollection<string> allowedSpecialTokens, bool countOnly)
     {
-        var encodedTokens = countOnly ? null : new List<int>();
+        var encodedTokens = countOnly ? null : new List<int>((int) Math.Ceiling(text.Length / 4d) is var capacity && capacity > 4 ? capacity : 4);
         var startIndex = 0;
         var count = 0;
         var pool = ArrayPool<byte>.Shared;
