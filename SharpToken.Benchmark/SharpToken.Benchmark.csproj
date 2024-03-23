@@ -14,4 +14,10 @@
     <ProjectReference Include="..\SharpToken\SharpToken.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="large-text.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

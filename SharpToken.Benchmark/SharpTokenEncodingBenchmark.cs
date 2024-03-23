@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
@@ -16,12 +15,14 @@ namespace SharpToken.Benchmark
     {
         private GptEncoding _encoding;
         private string[] _lines;
+        private string _largeText;
 
         [GlobalSetup]
         public void Setup()
         {
             _encoding = SharpToken.GptEncoding.GetEncoding("cl100k_base");
             _lines = File.ReadAllLines(Path.Combine(AppContext.BaseDirectory, "../../../../../../../../SharpToken.Tests/data/GptEncoderTestSamples.txt"));
+            _largeText = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "large-text.html"));
         }
 
         [Benchmark]
@@ -53,6 +54,14 @@ namespace SharpToken.Benchmark
             }
 
             return sum;
+        }
+
+
+        [Benchmark]
+        public int CountTokens_LargeInput()
+        {
+            var count = _encoding.TokenCount(_largeText);
+            return count;
         }
     }
 }
