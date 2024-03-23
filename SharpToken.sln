@@ -8,11 +8,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{78E07E63-4FB8-40BD-B847-7102CD0982A4}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharpToken.Tests", "SharpToken.Tests\SharpToken.Tests.csproj", "{BB8A6B01-CD2B-4F5C-8F54-9EC0E42EC0FD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpToken.Benchmark", "SharpToken.Benchmark\SharpToken.Benchmark.csproj", "{13A2E693-DD09-4D4A-B5B4-1688759FDAAB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SharpToken.Benchmark", "SharpToken.Benchmark\SharpToken.Benchmark.csproj", "{13A2E693-DD09-4D4A-B5B4-1688759FDAAB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

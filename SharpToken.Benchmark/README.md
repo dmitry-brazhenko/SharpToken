@@ -8,6 +8,45 @@ Make a release build and run the `SharpToken.Benchmark.exe`
 in `..\SharpToken\SharpToken.Benchmark\bin\Release\net8.0\SharpToken.Benchmark.exe`
 
 
+## Global Test
+
+```
+BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3296/23H2/2023Update/SunValley3)
+AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
+.NET SDK 8.0.200
+  [Host]               : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET 6.0             : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
+  .NET 8.0             : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET Framework 4.7.1 : .NET Framework 4.8.1 (4.8.9181.0), X64 RyuJIT VectorSize=256
+```
+
+| Method                | Job                  | Runtime              | Mean          | Error       | StdDev      | Ratio | RatioSD | Gen0      | Gen1     | Gen2     | Allocated | Alloc Ratio |
+|---------------------- |--------------------- |--------------------- |--------------:|------------:|------------:|------:|--------:|----------:|---------:|---------:|----------:|------------:|
+| Encode_SmallText      | .NET 6.0             | .NET 6.0             |     57.181 us |   1.1231 us |   1.0505 us |  0.54 |    0.01 |    6.0425 |   0.3662 |        - |   50784 B |        0.80 |
+| Encode_SmallText      | .NET 8.0             | .NET 8.0             |     37.466 us |   0.2264 us |   0.2007 us |  0.35 |    0.01 |    0.0610 |        - |        - |     696 B |        0.01 |
+| Encode_SmallText      | .NET Framework 4.7.1 | .NET Framework 4.7.1 |    106.342 us |   1.8675 us |   1.9178 us |  1.00 |    0.00 |   10.1318 |   0.6104 |        - |   63876 B |        1.00 |
+|                       |                      |                      |               |             |             |       |         |           |          |          |           |             |
+| Encode_LargeText      | .NET 6.0             | .NET 6.0             | 13,910.718 us | 269.9655 us | 252.5259 us |  0.63 |    0.01 |  796.8750 | 312.5000 | 125.0000 | 6382274 B |        0.82 |
+| Encode_LargeText      | .NET 8.0             | .NET 8.0             |  6,071.416 us |  93.7597 us |  83.1155 us |  0.28 |    0.00 |         - |        - |        - |  155547 B |        0.02 |
+| Encode_LargeText      | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 21,966.802 us | 254.4615 us | 238.0234 us |  1.00 |    0.00 | 1375.0000 | 562.5000 | 187.5000 | 7752789 B |        1.00 |
+|                       |                      |                      |               |             |             |       |         |           |          |          |           |             |
+| Decode_SmallText      | .NET 6.0             | .NET 6.0             |      2.630 us |   0.0352 us |   0.0275 us |  0.69 |    0.01 |    0.2747 |        - |        - |    2320 B |        0.98 |
+| Decode_SmallText      | .NET 8.0             | .NET 8.0             |      1.656 us |   0.0324 us |   0.0385 us |  0.43 |    0.01 |    0.2766 |        - |        - |    2320 B |        0.98 |
+| Decode_SmallText      | .NET Framework 4.7.1 | .NET Framework 4.7.1 |      3.803 us |   0.0579 us |   0.0542 us |  1.00 |    0.00 |    0.3738 |        - |        - |    2375 B |        1.00 |
+|                       |                      |                      |               |             |             |       |         |           |          |          |           |             |
+| Decode_LargeText      | .NET 6.0             | .NET 6.0             |    481.238 us |   3.3083 us |   2.5829 us |  0.82 |    0.01 |   29.2969 |  11.7188 |   7.8125 |  286982 B |        1.00 |
+| Decode_LargeText      | .NET 8.0             | .NET 8.0             |    455.787 us |   7.8000 us |   7.2961 us |  0.77 |    0.01 |   25.3906 |   8.3008 |   3.9063 |  286979 B |        1.00 |
+| Decode_LargeText      | .NET Framework 4.7.1 | .NET Framework 4.7.1 |    590.159 us |   6.4986 us |   6.0788 us |  1.00 |    0.00 |   38.0859 |  15.6250 |   9.7656 |  287512 B |        1.00 |
+|                       |                      |                      |               |             |             |       |         |           |          |          |           |             |
+| CountTokens_SmallText | .NET 6.0             | .NET 6.0             |     57.812 us |   1.0915 us |   1.0210 us |  0.55 |    0.02 |    5.9814 |   0.3052 |        - |   50080 B |       0.790 |
+| CountTokens_SmallText | .NET 8.0             | .NET 8.0             |     37.646 us |   0.4215 us |   0.3737 us |  0.36 |    0.01 |         - |        - |        - |     184 B |       0.003 |
+| CountTokens_SmallText | .NET Framework 4.7.1 | .NET Framework 4.7.1 |    106.034 us |   2.1028 us |   2.0652 us |  1.00 |    0.00 |   10.0098 |        - |        - |   63355 B |       1.000 |
+|                       |                      |                      |               |             |             |       |         |           |          |          |           |             |
+| CountTokens_LargeText | .NET 6.0             | .NET 6.0             | 13,744.503 us | 184.7183 us | 172.7856 us |  0.64 |    0.01 |  781.2500 | 328.1250 | 125.0000 | 6122801 B |       0.806 |
+| CountTokens_LargeText | .NET 8.0             | .NET 8.0             |  5,915.175 us | 114.8400 us | 145.2358 us |  0.27 |    0.00 |         - |        - |        - |     195 B |       0.000 |
+| CountTokens_LargeText | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 21,604.518 us | 164.2992 us | 153.6855 us |  1.00 |    0.00 | 1343.7500 | 531.2500 | 187.5000 | 7597916 B |       1.000 |
+
+
 ## Results:
 
 ### feat(benchmark): add benchmark for large file token count
