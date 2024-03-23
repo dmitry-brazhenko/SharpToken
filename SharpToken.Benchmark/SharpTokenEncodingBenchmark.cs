@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 
@@ -21,8 +19,8 @@ namespace SharpToken.Benchmark
         public void Setup()
         {
             _encoding = SharpToken.GptEncoding.GetEncoding("cl100k_base");
-            _lines = File.ReadAllLines(Path.Combine(AppContext.BaseDirectory, "../../../../../../../../SharpToken.Tests/data/GptEncoderTestSamples.txt"));
-            _largeText = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "large-text.html"));
+            _lines = FileHelper.ReadFileLines("../../../../../../../../SharpToken.Tests/data/GptEncoderTestSamples.txt");
+            _largeText = FileHelper.ReadFile("Files/large-text.html");
         }
 
         [Benchmark]
