@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
+
 namespace SharpToken;
 
 /// <summary>
@@ -14,14 +15,16 @@ namespace SharpToken;
 internal sealed class BytePairIndex : IReadOnlyCollection<KeyValuePair<byte[], int>>
 {
     private readonly Node _rootNode;
-    private readonly List<KeyValuePair<byte[], int>> _values;
+    private readonly IDictionary<byte[], int> _values;
 
     /// <summary>
     /// NOTE: does not support empty byte array keys!
+    /// Keys must be unique! This implementation does not validate input!
+    /// Input validation is done in Dictionary before instantiating this.
     /// </summary>
-    public BytePairIndex(IEnumerable<KeyValuePair<byte[], int>> data)
+    public BytePairIndex(IDictionary<byte[], int> data)
     {
-        _values = data.ToList();
+        _values = data;
 
         var result = Run(0, _values);
 
@@ -60,12 +63,6 @@ internal sealed class BytePairIndex : IReadOnlyCollection<KeyValuePair<byte[], i
 
             return nodes;
         }
-    }
-
-
-    public bool ContainsKey(ReadOnlySpan<byte> key)
-    {
-        return TryGetValue(key, out _);
     }
 
 

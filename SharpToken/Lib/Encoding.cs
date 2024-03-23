@@ -12,15 +12,18 @@ namespace SharpToken
         private readonly BytePairEncodingCore _bytePairEncodingCoreProcessor;
         private readonly Dictionary<string, int> _specialTokenMappings;
 
-        private GptEncoding(Regex tokenizerRegex,
+        private GptEncoding(
+            Regex tokenizerRegex,
             BytePairIndex bytePairRanks,
             Dictionary<string, int> specialTokenMappings,
-            int? explicitNVocab = null)
+            int? explicitNVocab = null
+        )
         {
             var maxTokenValue = Math.Max(
-                GetMaxValueFromDictionary(bytePairRanks),
-                GetMaxValueFromDictionary(specialTokenMappings)
+                GetMaxValueFromBytePairRanks(bytePairRanks),
+                GetMaxValueFromSpecialToken(specialTokenMappings)
             );
+
             _specialTokenMappings = specialTokenMappings;
 
             if (explicitNVocab.HasValue)
@@ -38,6 +41,16 @@ namespace SharpToken
             }
 
             _bytePairEncodingCoreProcessor = new BytePairEncodingCore(bytePairRanks, specialTokenMappings, tokenizerRegex);
+
+            int GetMaxValueFromBytePairRanks(BytePairIndex dictionary)
+            {
+                return dictionary.Select(_ => _.Value).Prepend(0).Max();
+            }
+
+            int GetMaxValueFromSpecialToken(Dictionary<string, int> dictionary)
+            {
+                return dictionary.Values.Prepend(0).Max();
+            }
         }
 
         public static GptEncoding GetEncoding(string encodingName)
@@ -120,14 +133,6 @@ namespace SharpToken
             return Encoding.UTF8.GetString(decodedBytes);
         }
 
-        private static int GetMaxValueFromDictionary(BytePairIndex dictionary)
-        {
-            return dictionary.Select(_ => _.Value).Prepend(0).Max();
-        }
 
-        private static int GetMaxValueFromDictionary(Dictionary<string, int> dictionary)
-        {
-            return dictionary.Values.Prepend(0).Max();
-        }
     }
 }
