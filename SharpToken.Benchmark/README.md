@@ -1,20 +1,21 @@
-
+# SharpToken Benchmark
 
 This runs a encode benchmark over all samples in GptEncoderTestSamples.txt
 
-# How To Run
+#### How To Run
 
 Make a release build and run the `SharpToken.Benchmark.exe`
 in `..\SharpToken\SharpToken.Benchmark\bin\Release\net8.0\SharpToken.Benchmark.exe`
 
 
-
-
 ## Results:
 
 
-### commit | feat(token-count): implement low allocation token count public method | version: 1.2.17 + improvements + count tokens benchmark
+### feat(benchmark): don't make allocations in benchmark methods
 
+- version: 1.2.17 + improvements - fix allocations in benchmark
+
+```
 BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3155/23H2/2023Update/SunValley3)
 AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
 .NET SDK 8.0.200
@@ -22,7 +23,41 @@ AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
   .NET 6.0             : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
   .NET 8.0             : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
   .NET Framework 4.7.1 : .NET Framework 4.8.1 (4.8.9181.0), X64 RyuJIT VectorSize=256
+```
 
+| Method      | Job                  | Runtime              | Mean       | Error    | StdDev   | Ratio | Gen0     | Gen1   | Allocated | Alloc Ratio |
+|------------ |--------------------- |--------------------- |-----------:|---------:|---------:|------:|---------:|-------:|----------:|------------:|
+| Encode      | .NET 6.0             | .NET 6.0             |   836.5 us |  1.59 us |  1.24 us |  0.67 |  62.5000 | 0.9766 | 515.51 KB |        0.82 |
+| Encode      | .NET 8.0             | .NET 8.0             |   553.8 us |  0.66 us |  0.55 us |  0.44 |   2.9297 |      - |  30.95 KB |        0.05 |
+| Encode      | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 1,251.8 us | 20.60 us | 19.27 us |  1.00 | 101.5625 | 1.9531 | 628.84 KB |        1.00 |
+|             |                      |                      |            |          |          |       |          |        |           |             |
+| CountTokens | .NET 6.0             | .NET 6.0             |   781.3 us | 11.27 us | 10.54 us |  0.65 |  58.5938 | 0.9766 | 484.75 KB |       0.806 |
+| CountTokens | .NET 8.0             | .NET 8.0             |   538.2 us |  1.24 us |  0.97 us |  0.45 |        - |      - |   4.06 KB |       0.007 |
+| CountTokens | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 1,191.9 us |  9.85 us |  7.69 us |  1.00 |  97.6563 | 1.9531 | 601.37 KB |       1.000 |
+
+
+## Results (This results mesured allocations produced in benchmark method)
+
+All following benchmark results show allocations produced in benchmark method.
+The benchmarks had allocations for `List.Add()`, `File.ReadAllLines()` and `IEnumerable<string>.GetEnumerator()`.
+
+All Benchmarks above don't have this missleading allocations!
+Therefore results can not be compared!
+
+
+### feat(token-count): implement low allocation token count public method
+
+- version: 1.2.17 + improvements + count tokens benchmark
+
+```
+BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3155/23H2/2023Update/SunValley3)
+AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
+.NET SDK 8.0.200
+  [Host]               : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET 6.0             : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
+  .NET 8.0             : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET Framework 4.7.1 : .NET Framework 4.8.1 (4.8.9181.0), X64 RyuJIT VectorSize=256
+```
 
 | Method      | Job                  | Runtime              | Mean       | Error    | StdDev   | Ratio | Gen0     | Gen1   | Allocated | Alloc Ratio |
 |------------ |--------------------- |--------------------- |-----------:|---------:|---------:|------:|---------:|-------:|----------:|------------:|
@@ -35,8 +70,11 @@ AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
 | CountTokens | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 1,429.1 us | 19.10 us | 17.86 us |  1.00 |  99.6094 | 3.9063 |  622.4 KB |        1.00 |
 
 
-### commit | feat(performance): backport some optimizations to net6.0 and netstandard | version: 1.2.17 + improvements optimizations to net6.0 and netstandard
+### feat(performance): backport some optimizations to net6.0 and netstandard
 
+- version: 1.2.17 + improvements optimizations to net6.0 and netstandard
+
+```
 BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3155/23H2/2023Update/SunValley3)
 AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
 .NET SDK 8.0.200
@@ -44,7 +82,7 @@ AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
   .NET 6.0             : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
   .NET 8.0             : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
   .NET Framework 4.7.1 : .NET Framework 4.8.1 (4.8.9181.0), X64 RyuJIT VectorSize=256
-
+```
 
 | Method | Job                  | Runtime              | Mean       | Error   | StdDev  | Ratio | Gen0     | Gen1   | Allocated | Alloc Ratio |
 |------- |--------------------- |--------------------- |-----------:|--------:|--------:|------:|---------:|-------:|----------:|------------:|
@@ -58,8 +96,11 @@ AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
 - NET 8 also shows less allocations beacuse of allocation reduction for allowedSpecial and disallowedSpecial
 
 
-### commit | feat(performance): implement fast MultiBytePairEncoder with almost zero allocations | version: 1.2.17 + improvements MultiBytePairEncoder in net8.0
+### feat(performance): implement fast MultiBytePairEncoder with almost zero allocations
 
+- version: 1.2.17 + improvements MultiBytePairEncoder in net8.0
+
+```
 BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3155/23H2/2023Update/SunValley3)
 AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
 .NET SDK 8.0.200
@@ -67,7 +108,7 @@ AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
   .NET 6.0             : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
   .NET 8.0             : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
   .NET Framework 4.7.1 : .NET Framework 4.8.1 (4.8.9181.0), X64 RyuJIT VectorSize=256
-
+```
 
 | Method | Job                  | Runtime              | Mean       | Error    | StdDev   | Ratio | RatioSD | Gen0     | Gen1    | Allocated | Alloc Ratio |
 |------- |--------------------- |--------------------- |-----------:|---------:|---------:|------:|--------:|---------:|--------:|----------:|------------:|
@@ -80,8 +121,11 @@ AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
 - 83 us faster
 - no Gen1 garbage produced
 
-### commit | feat(performance): use compile time generated regex in net8.0 | version: 1.2.17 + improvements for regex in net8.0
+### feat(performance): use compile time generated regex in net8.0
 
+- version: 1.2.17 + improvements for regex in net8.0
+
+```
 BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3155/23H2/2023Update/SunValley3)
 AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
 .NET SDK 8.0.200
@@ -89,7 +133,7 @@ AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
   .NET 6.0             : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
   .NET 8.0             : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
   .NET Framework 4.7.1 : .NET Framework 4.8.1 (4.8.9181.0), X64 RyuJIT VectorSize=256
-
+```
 
 | Method | Job                  | Runtime              | Mean       | Error    | StdDev   | Ratio | RatioSD | Gen0     | Gen1    | Allocated | Alloc Ratio |
 |------- |--------------------- |--------------------- |-----------:|---------:|---------:|------:|--------:|---------:|--------:|----------:|------------:|
@@ -98,8 +142,11 @@ AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
 | Encode | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 1,847.5 us | 17.26 us | 14.41 us |  1.00 |    0.00 | 148.4375 | 13.6719 | 921.82 KB |        1.00 |
 
 
-### commit | feat(performance): add support for ReadOnlySpan<char> in net8.0 | version: 1.2.17 + improvements for net8.0
+### feat(performance): add support for ReadOnlySpan&lt;char> in net8.0
 
+- version: 1.2.17 + improvements for net8.0
+
+```
 BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3155/23H2/2023Update/SunValley3)
 AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
 .NET SDK 8.0.200
@@ -107,7 +154,7 @@ AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
   .NET 6.0             : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
   .NET 8.0             : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
   .NET Framework 4.7.1 : .NET Framework 4.8.1 (4.8.9181.0), X64 RyuJIT VectorSize=256
-
+```
 
 | Method | Job                  | Runtime              | Mean       | Error    | StdDev   | Ratio | Gen0     | Gen1    | Allocated | Alloc Ratio |
 |------- |--------------------- |--------------------- |-----------:|---------:|---------:|------:|---------:|--------:|----------:|------------:|
@@ -116,8 +163,11 @@ AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
 | Encode | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 1,868.9 us | 23.18 us | 19.36 us |  1.00 | 148.4375 | 13.6719 | 921.81 KB |        1.00 |
 
 
-### commit | feat(performance): cache model parameters to do params preparation only once | version: 1.2.17 + improvements
+### feat(performance): cache model parameters to do params preparation only once
 
+- version: 1.2.17 + improvements
+
+```
 BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3155/23H2/2023Update/SunValley3)
 AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
 .NET SDK 8.0.200
@@ -125,7 +175,7 @@ AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
   .NET 6.0             : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
   .NET 8.0             : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
   .NET Framework 4.7.1 : .NET Framework 4.8.1 (4.8.9181.0), X64 RyuJIT VectorSize=256
-
+```
 
 | Method | Job                  | Runtime              | Mean       | Error    | StdDev   | Ratio | Gen0     | Gen1    | Allocated  | Alloc Ratio |
 |------- |--------------------- |--------------------- |-----------:|---------:|---------:|------:|---------:|--------:|-----------:|------------:|
@@ -134,8 +184,11 @@ AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
 | Encode | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 1,917.3 us | 17.89 us | 14.94 us |  1.00 | 169.9219 | 15.6250 | 1045.58 KB |        1.00 |
 
 
-### commit | feat(performance): replace SpecialTokenPatternRegex with faster alloc free solution | version: 1.2.17 + improvements
+### feat(performance): replace SpecialTokenPatternRegex with faster alloc free solution
 
+- version: 1.2.17 + improvements
+
+```
 BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3155/23H2/2023Update/SunValley3)
 AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
 .NET SDK 8.0.200
@@ -143,7 +196,7 @@ AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
   .NET 6.0             : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
   .NET 8.0             : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
   .NET Framework 4.7.1 : .NET Framework 4.8.1 (4.8.9181.0), X64 RyuJIT VectorSize=256
-
+```
 
 | Method | Job                  | Runtime              | Mean       | Error    | StdDev   | Ratio | RatioSD | Gen0     | Gen1    | Allocated  | Alloc Ratio |
 |------- |--------------------- |--------------------- |-----------:|---------:|---------:|------:|--------:|---------:|--------:|-----------:|------------:|
@@ -152,8 +205,11 @@ AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
 | Encode | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 1,932.4 us | 38.05 us | 49.48 us |  1.00 |    0.00 | 169.9219 | 15.6250 | 1045.58 KB |        1.00 |
 
 
-### commit | feat(performance): add benchmark project | version: 1.2.17 + improvements allocation reduction and compiled regex
+### feat(performance): add benchmark project
 
+- version: 1.2.17 + improvements allocation reduction and compiled regex
+
+```
 BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3155/23H2/2023Update/SunValley3)
 AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
 .NET SDK 8.0.200
@@ -161,7 +217,7 @@ AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
   .NET 6.0             : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
   .NET 8.0             : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
   .NET Framework 4.7.1 : .NET Framework 4.8.1 (4.8.9181.0), X64 RyuJIT VectorSize=256
-
+```
 
 | Method | Job                  | Runtime              | Mean       | Error    | StdDev   | Ratio | RatioSD | Gen0     | Gen1    | Allocated  | Alloc Ratio |
 |------- |--------------------- |--------------------- |-----------:|---------:|---------:|------:|--------:|---------:|--------:|-----------:|------------:|
@@ -170,8 +226,11 @@ AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
 | Encode | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 2,001.6 us | 39.25 us | 64.50 us |  1.00 |    0.00 | 167.9688 | 15.6250 | 1045.58 KB |        1.00 |
 
 
-### commit | feat(performance): add benchmark project | version: 1.2.17
+### feat(performance): add benchmark project
 
+- version: 1.2.17 -- (baseline)
+
+```
 BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3155/23H2/2023Update/SunValley3)
 AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
 .NET SDK 8.0.200
@@ -179,7 +238,7 @@ AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
   .NET 6.0             : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
   .NET 8.0             : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
   .NET Framework 4.7.1 : .NET Framework 4.8.1 (4.8.9181.0), X64 RyuJIT VectorSize=256
-
+```
 
 | Method | Job                  | Runtime              | Mean     | Error     | StdDev    | Ratio | RatioSD | Gen0     | Gen1    | Allocated | Alloc Ratio |
 |------- |--------------------- |--------------------- |---------:|----------:|----------:|------:|--------:|---------:|--------:|----------:|------------:|

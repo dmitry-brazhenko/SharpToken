@@ -15,26 +15,44 @@ namespace SharpToken.Benchmark
     public class SharpTokenEncodingBenchmark
     {
         private GptEncoding _encoding;
-
-        public static IEnumerable<string> Lines => File.ReadAllLines(Path.Combine(AppContext.BaseDirectory, "../../../../../../../../SharpToken.Tests/data/GptEncoderTestSamples.txt"));
+        private string[] _lines;
 
         [GlobalSetup]
         public void Setup()
         {
             _encoding = SharpToken.GptEncoding.GetEncoding("cl100k_base");
+            _lines = File.ReadAllLines(Path.Combine(AppContext.BaseDirectory, "../../../../../../../../SharpToken.Tests/data/GptEncoderTestSamples.txt"));
         }
 
         [Benchmark]
-        public List<List<int>> Encode()
+        public int Encode()
         {
-            var result = new List<List<int>>();
-            foreach (var line in Lines)
+            var sum = 0;
+            var len = _lines.Length;
+            for (var i = 0; i < len; i++)
             {
+                var line = _lines[i];
                 var encoded = _encoding.Encode(line);
-                result.Add(encoded);
+                sum += encoded.Count;
             }
 
-            return result;
+            return sum;
+        }
+
+
+        [Benchmark]
+        public int CountTokens()
+        {
+            var sum = 0;
+            var len = _lines.Length;
+            for (var i = 0; i < len; i++)
+            {
+                var line = _lines[i];
+                var count = _encoding.TokenCount(line);
+                sum += count;
+            }
+
+            return sum;
         }
     }
 }
