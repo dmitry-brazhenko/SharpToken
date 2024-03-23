@@ -13,6 +13,29 @@ in `..\SharpToken\SharpToken.Benchmark\bin\Release\net8.0\SharpToken.Benchmark.e
 ## Results:
 
 
+### commit | feat(performance): backport some optimizations to net6.0 and netstandard | version: 1.2.17 + improvements optimizations to net6.0 and netstandard
+
+BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3155/23H2/2023Update/SunValley3)
+AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
+.NET SDK 8.0.200
+  [Host]               : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET 6.0             : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
+  .NET 8.0             : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET Framework 4.7.1 : .NET Framework 4.8.1 (4.8.9181.0), X64 RyuJIT VectorSize=256
+
+
+| Method | Job                  | Runtime              | Mean       | Error   | StdDev  | Ratio | Gen0     | Gen1   | Allocated | Alloc Ratio |
+|------- |--------------------- |--------------------- |-----------:|--------:|--------:|------:|---------:|-------:|----------:|------------:|
+| Encode | .NET 6.0             | .NET 6.0             |   911.5 us | 4.22 us | 3.53 us |  0.69 |  65.4297 | 5.8594 | 537.97 KB |        0.83 |
+| Encode | .NET 8.0             | .NET 8.0             |   623.2 us | 5.88 us | 5.50 us |  0.48 |   5.8594 |      - |  51.48 KB |        0.08 |
+| Encode | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 1,314.2 us | 3.73 us | 2.91 us |  1.00 | 105.4688 | 9.7656 | 652.02 KB |        1.00 |
+
+**Notable Improvments**
+- NET 6 and NET Framework got faster and require less memory
+- Both also produce less garbage
+- NET 8 also shows less allocations beacuse of allocation reduction for allowedSpecial and disallowedSpecial
+
+
 ### commit | feat(performance): implement fast MultiBytePairEncoder with almost zero allocations | version: 1.2.17 + improvements MultiBytePairEncoder in net8.0
 
 BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3155/23H2/2023Update/SunValley3)
