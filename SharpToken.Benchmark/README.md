@@ -10,6 +10,39 @@ in `..\SharpToken\SharpToken.Benchmark\bin\Release\net8.0\SharpToken.Benchmark.e
 
 ## Results:
 
+### feat(benchmark): add benchmark for large file token count
+
+- version: 1.2.17 + improvements
+
+```
+BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3155/23H2/2023Update/SunValley3)
+AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
+.NET SDK 8.0.200
+  [Host]               : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET 6.0             : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
+  .NET 8.0             : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET Framework 4.7.1 : .NET Framework 4.8.1 (4.8.9181.0), X64 RyuJIT VectorSize=256
+```
+
+| Method                 | Job                  | Runtime              | Mean        | Error     | StdDev    | Ratio | RatioSD | Gen0      | Gen1     | Gen2     | Allocated | Alloc Ratio |
+|----------------------- |--------------------- |--------------------- |------------:|----------:|----------:|------:|--------:|----------:|---------:|---------:|----------:|------------:|
+| Encode                 | .NET 6.0             | .NET 6.0             |    973.9 us |  19.27 us |  31.66 us |  0.77 |    0.03 |   62.5000 |   0.9766 |        - |  524034 B |        0.82 |
+| Encode                 | .NET 8.0             | .NET 8.0             |    552.3 us |  10.73 us |  11.48 us |  0.44 |    0.01 |    2.9297 |        - |        - |   27841 B |        0.04 |
+| Encode                 | .NET Framework 4.7.1 | .NET Framework 4.7.1 |  1,252.7 us |  24.12 us |  23.69 us |  1.00 |    0.00 |  101.5625 |   1.9531 |        - |  640074 B |        1.00 |
+|                        |                      |                      |             |           |           |       |         |           |          |          |           |             |
+| CountTokens            | .NET 6.0             | .NET 6.0             |    801.2 us |  16.00 us |  19.65 us |  0.65 |    0.02 |   58.5938 |   0.9766 |        - |  496386 B |       0.806 |
+| CountTokens            | .NET 8.0             | .NET 8.0             |    557.3 us |  10.89 us |  10.69 us |  0.45 |    0.02 |         - |        - |        - |    4161 B |       0.007 |
+| CountTokens            | .NET Framework 4.7.1 | .NET Framework 4.7.1 |  1,235.5 us |  24.52 us |  31.01 us |  1.00 |    0.00 |   97.6563 |   1.9531 |        - |  615801 B |       1.000 |
+|                        |                      |                      |             |           |           |       |         |           |          |          |           |             |
+| CountTokens_LargeInput | .NET 6.0             | .NET 6.0             | 13,955.6 us | 258.91 us | 242.19 us |  0.64 |    0.01 |  781.2500 | 328.1250 | 125.0000 | 6122849 B |       0.806 |
+| CountTokens_LargeInput | .NET 8.0             | .NET 8.0             |  5,781.9 us | 115.07 us | 127.91 us |  0.27 |    0.01 |         - |        - |        - |      75 B |       0.000 |
+| CountTokens_LargeInput | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 21,674.7 us | 374.37 us | 350.18 us |  1.00 |    0.00 | 1312.5000 | 500.0000 | 156.2500 | 7596775 B |       1.000 |
+
+**Notable Improvments**
+- CountTokens_LargeInput on .NET 8.0 only allocated 75 B!
+- CountTokens_LargeInput runs only one iteration while all other run around 66 iterations!
+
+
 ### feat(performance): reduce minor allocations
 
 - version: 1.2.17 + improvements
