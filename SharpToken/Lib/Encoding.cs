@@ -73,6 +73,20 @@ namespace SharpToken
             return GetEncoding(encodingName);
         }
 
+        public int TokenCount(
+#if NET8_0_OR_GREATER
+            ReadOnlySpan<char> lineToEncode,
+#else
+            string lineToEncode,
+#endif
+            ISet<string> allowedSpecial = null,
+            ISet<string> disallowedSpecial = null
+        )
+        {
+            var (_, count) = EncodeCore(lineToEncode, allowedSpecial, disallowedSpecial, countOnly: true);
+            return count;
+        }
+
         public List<int> Encode(
 #if NET8_0_OR_GREATER
             ReadOnlySpan<char> lineToEncode,
@@ -81,7 +95,7 @@ namespace SharpToken
 #endif
             ISet<string> allowedSpecial = null, ISet<string> disallowedSpecial = null)
         {
-            var tokens = EncodeCore(lineToEncode, allowedSpecial, disallowedSpecial);
+            var (tokens, _) = EncodeCore(lineToEncode, allowedSpecial, disallowedSpecial, countOnly: false);
             return tokens;
         }
 
@@ -90,7 +104,7 @@ namespace SharpToken
         // It could be removed if desired.
         public List<int> Encode(string lineToEncode, ISet<string> allowedSpecial = null, ISet<string> disallowedSpecial = null)
         {
-            var tokens = EncodeCore(lineToEncode.AsSpan(), allowedSpecial, disallowedSpecial);
+            var (tokens, _) = EncodeCore(lineToEncode.AsSpan(), allowedSpecial, disallowedSpecial, countOnly: false);
             return tokens;
         }
 #endif
@@ -119,14 +133,15 @@ namespace SharpToken
 
         #region Private
 
-        private List<int> EncodeCore(
+        private (List<int> tokens, int count) EncodeCore(
 #if NET8_0_OR_GREATER
             ReadOnlySpan<char> lineToEncode,
 #else
             string lineToEncode,
 #endif
             ISet<string> allowedSpecial = null,
-            ISet<string> disallowedSpecial = null
+            ISet<string> disallowedSpecial = null,
+            bool countOnly = false
         )
         {
             var allowedSpecialTokens = allowedSpecial is null
@@ -151,7 +166,7 @@ namespace SharpToken
                 throw new ArgumentException($"Disallowed special token found: {match.Value}");
             }
 
-            var result = _bytePairEncodingCoreProcessor.EncodeNative(lineToEncode, allowedSpecialTokens);
+            var result = _bytePairEncodingCoreProcessor.EncodeNative(lineToEncode, allowedSpecialTokens, countOnly);
             return result;
         }
 

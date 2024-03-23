@@ -33,10 +33,11 @@ internal sealed class BytePairEncodingCore
     public Dictionary<int, byte[]> SpecialTokensDecoder { get; }
     public Regex RegexTls { get; }
 
-    public List<int> EncodeNative(ReadOnlySpan<char> text, IReadOnlyCollection<string> allowedSpecialTokens)
+    public (List<int> tokens, int count) EncodeNative(ReadOnlySpan<char> text, IReadOnlyCollection<string> allowedSpecialTokens, bool countOnly)
     {
-        var encodedTokens = new List<int>();
+        var encodedTokens = countOnly ? null : new List<int>();
         var startIndex = 0;
+        var count = 0;
         var pool = ArrayPool<byte>.Shared;
 
         while (true)
@@ -61,7 +62,8 @@ internal sealed class BytePairEncodingCore
 
                     if (piece.Length == 1)
                     {
-                        encodedTokens.Add(Encoder[piece]);
+                        encodedTokens?.Add(Encoder[piece]);
+                        count++;
                         continue;
                     }
 
@@ -70,7 +72,8 @@ internal sealed class BytePairEncodingCore
 
                     foreach (var token in tokens)
                     {
-                        encodedTokens.Add(token);
+                        encodedTokens?.Add(token);
+                        count++;
                     }
                 }
                 finally
@@ -83,7 +86,8 @@ internal sealed class BytePairEncodingCore
             {
                 var specialToken = nextSpecialMatch.Value;
                 var specialTokenValue = SpecialTokensEncoder[specialToken];
-                encodedTokens.Add(specialTokenValue);
+                encodedTokens?.Add(specialTokenValue);
+                count++;
                 startIndex += nextSpecialMatch.Index + specialToken.Length;
             }
             else
@@ -92,7 +96,7 @@ internal sealed class BytePairEncodingCore
             }
         }
 
-        return encodedTokens;
+        return (encodedTokens, count);
     }
 
     public byte[] DecodeNative(IEnumerable<int> tokens)

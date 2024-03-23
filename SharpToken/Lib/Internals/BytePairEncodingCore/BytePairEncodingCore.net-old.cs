@@ -35,10 +35,11 @@ namespace SharpToken
         public Dictionary<int, byte[]> SpecialTokensDecoder { get; }
         public Regex RegexTls { get; }
 
-        public List<int> EncodeNative(string text, IReadOnlyCollection<string> allowedSpecialTokens)
+        public (List<int> tokens, int count) EncodeNative(string text, IReadOnlyCollection<string> allowedSpecialTokens, bool countOnly)
         {
-            var encodedTokens = new List<int>();
+            var encodedTokens = countOnly ? null : new List<int>();
             var startIndex = 0;
+            var count = 0;
 #if NET
             var pool = ArrayPool<byte>.Shared;
 #endif
@@ -69,7 +70,8 @@ namespace SharpToken
 
                         if (piece.Length == 1)
                         {
-                            encodedTokens.Add(Encoder[piece]);
+                            encodedTokens?.Add(Encoder[piece]);
+                            count++;
                             continue;
                         }
 
@@ -78,7 +80,8 @@ namespace SharpToken
 
                         foreach (var token in tokens)
                         {
-                            encodedTokens.Add(token);
+                            encodedTokens?.Add(token);
+                            count++;
                         }
 #if NET
                     }
@@ -93,7 +96,8 @@ namespace SharpToken
                 {
                     var specialToken = nextSpecialMatch.Value;
                     var specialTokenValue = SpecialTokensEncoder[specialToken];
-                    encodedTokens.Add(specialTokenValue);
+                    encodedTokens?.Add(specialTokenValue);
+                    count++;
                     startIndex += nextSpecialMatch.Index + specialToken.Length;
                 }
                 else
@@ -102,7 +106,7 @@ namespace SharpToken
                 }
             }
 
-            return encodedTokens;
+            return (encodedTokens, count);
         }
 
         public byte[] DecodeNative(IEnumerable<int> tokens)
