@@ -33,11 +33,10 @@ internal sealed class BytePairEncodingCore
     public Dictionary<int, byte[]> SpecialTokensDecoder { get; }
     public Regex RegexTls { get; }
 
-    public (List<int>, int) EncodeNative(ReadOnlySpan<char> text, ISet<string> allowedSpecial)
+    public List<int> EncodeNative(ReadOnlySpan<char> text, ISet<string> allowedSpecial)
     {
         var encodedTokens = new List<int>();
         var startIndex = 0;
-        var lastTokenLength = 0;
         var pool = ArrayPool<byte>.Shared;
 
         var allowedSpecialTokens = allowedSpecial.Count == 0
@@ -66,11 +65,9 @@ internal sealed class BytePairEncodingCore
                     var size = Encoding.UTF8.GetBytes(segment, buffer);
                     var encodedPiece = buffer.AsSpan(..size);
 
-                    lastTokenLength = 0;
                     foreach (var token in BytePairEncode(encodedPiece))
                     {
                         encodedTokens.Add(token);
-                        lastTokenLength++;
                     }
                 }
                 finally
@@ -85,7 +82,6 @@ internal sealed class BytePairEncodingCore
                 var specialTokenValue = SpecialTokensEncoder[specialToken];
                 encodedTokens.Add(specialTokenValue);
                 startIndex += nextSpecialMatch.Index + specialToken.Length;
-                lastTokenLength = 0;
             }
             else
             {
@@ -93,7 +89,7 @@ internal sealed class BytePairEncodingCore
             }
         }
 
-        return (encodedTokens, lastTokenLength);
+        return encodedTokens;
     }
 
     public byte[] DecodeNative(IEnumerable<int> tokens)
@@ -130,16 +126,6 @@ internal sealed class BytePairEncodingCore
             .Select(i => (Start: i, Rank: int.MaxValue))
             .ToList();
 
-        int? GetRank(ReadOnlySpan<byte> piece, IReadOnlyList<(int Start, int Rank)> partitionsList, int startIndex, int skip)
-        {
-            if (startIndex + skip + 2 >= partitionsList.Count)
-            {
-                return null;
-            }
-
-            var key = piece[partitionsList[startIndex].Start..partitionsList[startIndex + skip + 2].Start];
-            return Encoder.TryGetValue(key, out var rank) ? rank : null;
-        }
 
         for (var i = 0; i < partitions.Count - 2; i++)
         {
@@ -192,6 +178,20 @@ internal sealed class BytePairEncodingCore
         }
 
         return output;
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        int? GetRank(ReadOnlySpan<byte> piece, IReadOnlyList<(int Start, int Rank)> partitionsList, int startIndex, int skip)
+        {
+            var endIndex = startIndex + skip + 2;
+            if (endIndex >= partitionsList.Count)
+            {
+                return null;
+            }
+
+            var key = piece[partitionsList[startIndex].Start..partitionsList[endIndex].Start];
+            return Encoder.TryGetValue(key, out var rank) ? rank : null;
+        }
     }
 }
 

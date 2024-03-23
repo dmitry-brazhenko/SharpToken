@@ -31,11 +31,10 @@ namespace SharpToken
         public Dictionary<int, byte[]> SpecialTokensDecoder { get; }
         public Regex RegexTls { get; }
 
-        public (List<int>, int) EncodeNative(string text, ISet<string> allowedSpecial)
+        public List<int> EncodeNative(string text, ISet<string> allowedSpecial)
         {
             var encodedTokens = new List<int>();
             var startIndex = 0;
-            var lastTokenLength = 0;
 
             var allowedSpecialTokens = allowedSpecial.Count == 0
                 ? Array.Empty<string>()
@@ -58,11 +57,9 @@ namespace SharpToken
                 {
                     var encodedPiece = Encoding.UTF8.GetBytes(match.Value);
 
-                    lastTokenLength = 0;
-                    foreach (var token in BytePairEncode(encodedPiece, Encoder))
+                    foreach (var token in BytePairEncode(encodedPiece))
                     {
                         encodedTokens.Add(token);
-                        lastTokenLength++;
                     }
                 }
 
@@ -72,7 +69,6 @@ namespace SharpToken
                     var specialTokenValue = SpecialTokensEncoder[specialToken];
                     encodedTokens.Add(specialTokenValue);
                     startIndex = nextSpecialMatch.Index + specialToken.Length;
-                    lastTokenLength = 0;
                 }
                 else
                 {
@@ -80,7 +76,7 @@ namespace SharpToken
                 }
             }
 
-            return (encodedTokens, lastTokenLength);
+            return encodedTokens;
         }
 
         public byte[] DecodeNative(IEnumerable<int> tokens)
@@ -105,23 +101,18 @@ namespace SharpToken
                    SpecialTokensDecoder.TryGetValue(token, out tokenBytes);
         }
 
-        private static IEnumerable<T> BytePairMerge<T>(byte[] piece, BytePairIndex ranks,
-            Func<(int Start, int End), T> f)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private IEnumerable<int> BytePairEncode(byte[] piece)
         {
+            if (piece.Length == 1)
+            {
+                yield return Encoder[piece];
+                yield break;
+            }
+
             var partitions = Enumerable.Range(0, piece.Length + 1)
                 .Select(i => (Start: i, Rank: int.MaxValue))
                 .ToList();
-
-            int? GetRank(IReadOnlyList<(int Start, int Rank)> partitionsList, int startIndex, int skip)
-            {
-                if (startIndex + skip + 2 >= partitionsList.Count)
-                {
-                    return null;
-                }
-
-                var key = piece.Slice(partitionsList[startIndex].Start, partitionsList[startIndex + skip + 2].Start);
-                return ranks.TryGetValue(key, out var rank) ? rank : (int?) null;
-            }
 
             for (var i = 0; i < partitions.Count - 2; i++)
             {
@@ -167,23 +158,21 @@ namespace SharpToken
 
             for (var i = 0; i < partitions.Count - 1; i++)
             {
-                yield return f((partitions[i].Start, partitions[i + 1].Start));
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static IEnumerable<int> BytePairEncode(byte[] inputBytes, BytePairIndex bytePairRanks)
-        {
-            if (inputBytes.Length == 1)
-            {
-                return new int[] { bytePairRanks[inputBytes] };
+                var key = piece.Slice(partitions[i].Start, partitions[i + 1].Start);
+                yield return Encoder[key];
             }
 
-            return BytePairMerge(inputBytes, bytePairRanks, pair =>
+
+            int? GetRank(IReadOnlyList<(int Start, int Rank)> partitionsList, int startIndex, int skip)
             {
-                var key = inputBytes.Slice(pair.Start, pair.End);
-                return bytePairRanks[key];
-            });
+                if (startIndex + skip + 2 >= partitionsList.Count)
+                {
+                    return null;
+                }
+
+                var key = piece.Slice(partitionsList[startIndex].Start, partitionsList[startIndex + skip + 2].Start);
+                return Encoder.TryGetValue(key, out var rank) ? rank : (int?) null;
+            }
         }
     }
 }

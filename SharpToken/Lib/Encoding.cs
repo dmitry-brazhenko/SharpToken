@@ -107,7 +107,7 @@ namespace SharpToken
             }
 
             var encodedLine = _bytePairEncodingCoreProcessor.EncodeNative(lineToEncode, allowedSpecial);
-            return encodedLine.Item1;
+            return encodedLine;
         }
 
         // keep this overload because it was part of previous public API:
