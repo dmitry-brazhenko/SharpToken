@@ -1,6 +1,7 @@
-#if NET8_0_OR_GREATER
+#if NET
 using System;
 using System.Buffers;
+#endif
 using System.Runtime.CompilerServices;
 
 
@@ -16,19 +17,28 @@ namespace SharpToken
         public FastPartitionList(int length)
         {
             Length = length + 1;
+#if NET
             _partitions = ArrayPool<(int Start, int Rank)>.Shared.Rent(Length);
             _index = ArrayPool<int>.Shared.Rent(Length);
+#else
+            _partitions = new (int Start, int Rank)[Length];
+            _index = new int[Length];
+#endif
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly void Initialize(ReadOnlySpan<byte> piece, BytePairIndex encoder)
+        public
+#if NET
+            readonly 
+#endif
+            void Initialize(ReadOnlySpan<byte> piece, BytePairIndex encoder)
         {
             var len = Length;
             for (var i = 0; i < len; i++)
             {
                 var endIndex = i + 2;
                 var rank = endIndex < len
-                    ? encoder.TryGetValue(piece[i..endIndex], out var r) ? r : int.MaxValue
+                    ? encoder.TryGetValue(piece.RangeSlice(i, endIndex), out var r) ? r : int.MaxValue
                     : int.MaxValue;
 
                 _partitions[i] = (Start: i, Rank: rank);
@@ -61,13 +71,13 @@ namespace SharpToken
             }
         }
 
+#if NET
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly void Dispose()
         {
             ArrayPool<int>.Shared.Return(_index);
             ArrayPool<(int Start, int Rank)>.Shared.Return(_partitions);
         }
+#endif
     }
 }
-
-#endif

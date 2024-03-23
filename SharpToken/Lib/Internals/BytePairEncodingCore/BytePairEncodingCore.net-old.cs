@@ -1,10 +1,15 @@
 #if !NET8_0_OR_GREATER
+#if NET
+using System;
+using System.Buffers;
+#endif
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
+
 
 namespace SharpToken
 {
@@ -34,26 +39,54 @@ namespace SharpToken
         {
             var encodedTokens = new List<int>();
             var startIndex = 0;
+#if NET
+            var pool = ArrayPool<byte>.Shared;
+#endif
 
             while (true)
             {
-                var textSegment = text;
+                var slice = text;
 
                 var nextSpecialMatch = allowedSpecialTokens.FindMatch(text, startIndex);
                 if (nextSpecialMatch.Success)
                 {
                     var endIndex = nextSpecialMatch.Index + startIndex;
-                    textSegment = text.Substring(0, endIndex - startIndex);
+                    slice = text.Substring(0, endIndex - startIndex);
                 }
 
-                foreach (var match in RegexTls.Matches(textSegment, startIndex).Cast<Match>())
+                foreach (var match in RegexTls.Matches(slice, startIndex).Cast<Match>())
                 {
-                    var encodedPiece = Encoding.UTF8.GetBytes(match.Value);
-
-                    foreach (var token in BytePairEncode(encodedPiece))
+                    var segment = match.Value;
+#if NET
+                    var buffer = pool.Rent(Encoding.UTF8.GetMaxByteCount(segment.Length));
+                    try
                     {
-                        encodedTokens.Add(token);
+                        var size = Encoding.UTF8.GetBytes(segment, buffer);
+                        var piece = buffer.AsSpan(..size);
+#else
+                        var piece = Encoding.UTF8.GetBytes(segment);
+#endif
+
+                        if (piece.Length == 1)
+                        {
+                            encodedTokens.Add(Encoder[piece]);
+                            continue;
+                        }
+
+                        var bytePairEncoder = new MultiBytePairEncoder(piece, Encoder);
+                        var tokens = bytePairEncoder.GetTokens();
+
+                        foreach (var token in tokens)
+                        {
+                            encodedTokens.Add(token);
+                        }
+#if NET
                     }
+                    finally
+                    {
+                        pool.Return(buffer);
+                    }
+#endif
                 }
 
                 if (nextSpecialMatch.Success)
@@ -61,7 +94,7 @@ namespace SharpToken
                     var specialToken = nextSpecialMatch.Value;
                     var specialTokenValue = SpecialTokensEncoder[specialToken];
                     encodedTokens.Add(specialTokenValue);
-                    startIndex = nextSpecialMatch.Index + specialToken.Length;
+                    startIndex += nextSpecialMatch.Index + specialToken.Length;
                 }
                 else
                 {
@@ -88,84 +121,11 @@ namespace SharpToken
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool TryDecodeToken(int token, out byte[] tokenBytes)
         {
             return Decoder.TryGetValue(token, out tokenBytes) ||
                    SpecialTokensDecoder.TryGetValue(token, out tokenBytes);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private IEnumerable<int> BytePairEncode(byte[] piece)
-        {
-            if (piece.Length == 1)
-            {
-                yield return Encoder[piece];
-                yield break;
-            }
-
-            var partitions = Enumerable.Range(0, piece.Length + 1)
-                .Select(i => (Start: i, Rank: int.MaxValue))
-                .ToList();
-
-            for (var i = 0; i < partitions.Count - 2; i++)
-            {
-                var rank = GetRank(partitions, i, 0);
-                if (rank.HasValue)
-                {
-                    partitions[i] = (partitions[i].Start, rank.Value);
-                }
-            }
-
-            while (partitions.Count > 1)
-            {
-                var minRank = int.MaxValue;
-                var minRankIdx = 0;
-
-                for (var i = 0; i < partitions.Count - 1; i++)
-                {
-                    if (partitions[i].Rank < minRank)
-                    {
-                        minRank = partitions[i].Rank;
-                        minRankIdx = i;
-                    }
-                }
-
-                if (minRank != int.MaxValue)
-                {
-                    partitions[minRankIdx] = (partitions[minRankIdx].Start,
-                        GetRank(partitions, minRankIdx, 1) ?? int.MaxValue);
-
-                    if (minRankIdx > 0)
-                    {
-                        partitions[minRankIdx - 1] = (partitions[minRankIdx - 1].Start,
-                            GetRank(partitions, minRankIdx - 1, 1) ?? int.MaxValue);
-                    }
-
-                    partitions.RemoveAt(minRankIdx + 1);
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            for (var i = 0; i < partitions.Count - 1; i++)
-            {
-                var key = piece.Slice(partitions[i].Start, partitions[i + 1].Start);
-                yield return Encoder[key];
-            }
-
-
-            int? GetRank(IReadOnlyList<(int Start, int Rank)> partitionsList, int startIndex, int skip)
-            {
-                if (startIndex + skip + 2 >= partitionsList.Count)
-                {
-                    return null;
-                }
-
-                var key = piece.Slice(partitionsList[startIndex].Start, partitionsList[startIndex + skip + 2].Start);
-                return Encoder.TryGetValue(key, out var rank) ? rank : (int?) null;
-            }
         }
     }
 }

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+
 
 namespace SharpToken
 {
@@ -21,14 +23,6 @@ namespace SharpToken
             return new FoundMatch { Success = false };
         }
 #else
-        public static T[] Slice<T>(this T[] array, int startIndex, int endIndex)
-        {
-            var len = endIndex - startIndex;
-            var slice = new T[len];
-            Array.Copy(array, startIndex, slice, 0, len);
-            return slice;
-        }
-
         public static FoundMatch FindMatch(this IEnumerable<string> searchValues, string text, int startIndex = 0)
         {
             foreach (var searchValue in searchValues)
@@ -36,19 +30,43 @@ namespace SharpToken
                 var index = text.IndexOf(searchValue, startIndex, StringComparison.Ordinal);
                 if (index != -1)
                 {
-                    return new FoundMatch
-                    {
-                        Success = true,
-                        Value = searchValue,
-                        Index = index
-                    };
+                    return new FoundMatch { Success = true, Value = searchValue, Index = index };
                 }
             }
 
             return new FoundMatch { Success = false };
         }
 #endif
+
+
+#if NETSTANDARD
+        /// <summary>
+        /// Helper to handle missing API in netstandard.
+        /// </summary>
+        public static T[] Slice<T>(this T[] array, int startIndex, int endIndex)
+        {
+            var len = endIndex - startIndex;
+            var slice = new T[len];
+            Array.Copy(array, startIndex, slice, 0, len);
+            return slice;
+        }
+#endif
+
+
+        /// <summary>
+        /// Helper to handle missing API in netstandard.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ReadOnlySpan<byte> RangeSlice(this ReadOnlySpan<byte> span, int startIndex, int endIndex)
+        {
+#if NET
+            return span[startIndex..endIndex];
+#else
+            return span[startIndex, endIndex];
+#endif
+        }
     }
+
 
     internal ref struct FoundMatch
     {

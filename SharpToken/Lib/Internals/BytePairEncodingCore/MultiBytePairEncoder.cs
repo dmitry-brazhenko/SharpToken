@@ -1,5 +1,6 @@
-#if NET8_0_OR_GREATER
+#if NET
 using System;
+#endif
 using System.Runtime.CompilerServices;
 using SharpToken;
 
@@ -68,8 +69,8 @@ namespace SharpToken
                 return null;
             }
 
-            var key = _piece[partitions[startIndex].Start..partitions[endIndex].Start];
-            return _encoder.TryGetValue(key, out var rank) ? rank : null;
+            var key = _piece.RangeSlice(partitions[startIndex].Start, partitions[endIndex].Start);
+            return _encoder.TryGetValue(key, out var rank) ? rank : (int?) null;
         }
     }
 }
@@ -93,7 +94,11 @@ internal ref struct TokenEnumerator
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly TokenEnumerator GetEnumerator() => this;
+    public
+#if NET
+        readonly
+#endif
+        TokenEnumerator GetEnumerator() => this;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool MoveNext()
@@ -113,17 +118,17 @@ internal ref struct TokenEnumerator
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get
         {
-            var key = _piece[_partitions[_index].Start.._partitions[_index + 1].Start];
+            var key = _piece.RangeSlice(_partitions[_index].Start, _partitions[_index + 1].Start);
             var token = _encoder[key];
             return token;
         }
     }
 
+#if NET
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly void Dispose()
     {
         _partitions.Dispose();
     }
-}
-
 #endif
+}

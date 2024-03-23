@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
+
 namespace SharpToken;
 
 internal sealed class BytePairEncodingCore
