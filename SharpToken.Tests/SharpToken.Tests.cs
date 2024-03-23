@@ -72,6 +72,28 @@ public class Tests
     }
 
     [Test]
+    public void TestEncodingWithAllowedAll()
+    {
+        const string encodingName = "cl100k_base";
+        const string inputText = "<|fim_prefix|>lorem ipsum<|fim_suffix|>, consectetur adipisicing elit<|fim_middle|>dolor sit amet";
+        const int fimPrefix = 100258;
+        const int fimMiddle = 100259;
+        const int fimSuffix = 100260;
+        var allowedSpecialTokens = new HashSet<string> { "all" };
+        
+        var encoding = GptEncoding.GetEncoding(encodingName);
+        var encoded = encoding.Encode(inputText, allowedSpecialTokens);
+        var expectedEncoded = new List<int> { fimPrefix, 385, 1864, 27439, fimSuffix, 11, 36240, 57781, 31160, fimMiddle, 67, 795, 2503, 28311 };
+
+        var decoded = encoding.Decode(encoded);
+
+        Assert.Multiple(() => {
+            Assert.That(encoded, Is.EqualTo(expectedEncoded));
+            Assert.That(decoded, Is.EqualTo(inputText));
+        });
+    }
+
+    [Test]
     public void TestEncodingFailsWithInvalidInputDefaultSpecial()
     {
         const string encodingName = "cl100k_base";

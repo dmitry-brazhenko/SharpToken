@@ -160,9 +160,7 @@ namespace SharpToken
 
             var disallowedSpecialTokens = disallowedSpecial == null || disallowedSpecial.Contains("all")
                 // When null or all -> initialize with all except allowed
-                ? allowedSpecial is null
-                    ? _specialTokenMappings.Keys
-                    : _specialTokenMappings.Keys.Where(_ => !allowedSpecial.Contains(_))
+                ? _specialTokenMappings.Keys.Where(_ => !allowedSpecialTokens.Contains(_))
                 // Else use provided list
                 : disallowedSpecial;
 

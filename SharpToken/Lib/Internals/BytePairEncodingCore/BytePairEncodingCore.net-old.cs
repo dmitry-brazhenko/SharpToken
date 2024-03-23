@@ -51,8 +51,8 @@ namespace SharpToken
                 var nextSpecialMatch = allowedSpecialTokens.FindMatch(text, startIndex);
                 if (nextSpecialMatch.Success)
                 {
-                    var endIndex = nextSpecialMatch.Index + startIndex;
-                    slice = text.Substring(0, endIndex - startIndex);
+                    var length = nextSpecialMatch.Index;
+                    slice = text.Substring(0, length);
                 }
 
                 foreach (var match in RegexTls.Matches(slice, startIndex).Cast<Match>())
@@ -98,7 +98,7 @@ namespace SharpToken
                     var specialTokenValue = SpecialTokensEncoder[specialToken];
                     encodedTokens?.Add(specialTokenValue);
                     count++;
-                    startIndex += nextSpecialMatch.Index + specialToken.Length;
+                    startIndex = nextSpecialMatch.Index + specialToken.Length;
                 }
                 else
                 {

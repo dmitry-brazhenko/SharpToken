@@ -15,31 +15,47 @@ namespace SharpToken
                 return new FoundMatch { Success = false };
             }
 
+            var minIndex = int.MaxValue;
+            string value = null;
             foreach (var searchValue in searchValues)
             {
                 // uses modern multibyte cpu instructions
                 var index = text.IndexOf(searchValue);
-                if (index != -1)
+                if (index != -1 && index < minIndex)
                 {
-                    return new FoundMatch { Success = true, Value = searchValue, Index = index };
+                    minIndex = index;
+                    value = searchValue;
                 }
             }
 
-            return new FoundMatch { Success = false };
+            return new FoundMatch
+            {
+                Success = minIndex != int.MaxValue,
+                Value = value,
+                Index = minIndex
+            };
         }
 #else
         public static FoundMatch FindMatch(this IEnumerable<string> searchValues, string text, int startIndex = 0)
         {
+            var minIndex = int.MaxValue;
+            string value = null;
             foreach (var searchValue in searchValues)
             {
                 var index = text.IndexOf(searchValue, startIndex, StringComparison.Ordinal);
-                if (index != -1)
+                if (index != -1 && index < minIndex)
                 {
-                    return new FoundMatch { Success = true, Value = searchValue, Index = index };
+                    minIndex = index;
+                    value = searchValue;
                 }
             }
 
-            return new FoundMatch { Success = false };
+            return new FoundMatch
+            {
+                Success = minIndex != int.MaxValue,
+                Value = value,
+                Index = minIndex
+            };
         }
 #endif
 
