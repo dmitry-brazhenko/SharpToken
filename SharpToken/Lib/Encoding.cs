@@ -73,44 +73,27 @@ namespace SharpToken
             return GetEncoding(encodingName);
         }
 
+        public List<int> Encode(
 #if NET8_0_OR_GREATER
-        // keep this overload because it was part of previous public API:
-        public List<int> Encode(string lineToEncode, ISet<string> allowedSpecial = null, ISet<string> disallowedSpecial = null)
-        {
-            return Encode(lineToEncode.AsSpan(), allowedSpecial, disallowedSpecial);
-        }
-
-        public List<int> Encode(ReadOnlySpan<char> lineToEncode, ISet<string> allowedSpecial = null, ISet<string> disallowedSpecial = null)
-        {
+            ReadOnlySpan<char> lineToEncode,
 #else
+            string lineToEncode,
+#endif
+            ISet<string> allowedSpecial = null, ISet<string> disallowedSpecial = null)
+        {
+            var tokens = EncodeCore(lineToEncode, allowedSpecial, disallowedSpecial);
+            return tokens;
+        }
+
+#if NET8_0_OR_GREATER
+        // keep this overload because it was part of previous public API.
+        // It could be removed if desired.
         public List<int> Encode(string lineToEncode, ISet<string> allowedSpecial = null, ISet<string> disallowedSpecial = null)
         {
-#endif
-            var allowedSpecialTokens = allowedSpecial is null
-                // When null allow nothing
-                ? Array.Empty<string>()
-                : allowedSpecial.Contains("all")
-                    ? (IReadOnlyCollection<string>) _specialTokenMappings.Keys
-                    // filter / validate list to only known special tokens:
-                    : (IReadOnlyCollection<string>) _specialTokenMappings.Keys.Where(allowedSpecial.Contains).ToArray();
-
-            var disallowedSpecialTokens = disallowedSpecial == null || disallowedSpecial.Contains("all")
-                // When null or all -> initialize with all except allowed
-                ? allowedSpecial is null
-                    ? _specialTokenMappings.Keys
-                    : _specialTokenMappings.Keys.Where(_ => !allowedSpecial.Contains(_))
-                // Else use provided list
-                : disallowedSpecial;
-
-            var match = disallowedSpecialTokens.FindMatch(lineToEncode);
-            if (match.Success)
-            {
-                throw new ArgumentException($"Disallowed special token found: {match.Value}");
-            }
-
-            var encodedLine = _bytePairEncodingCoreProcessor.EncodeNative(lineToEncode, allowedSpecialTokens);
-            return encodedLine;
+            var tokens = EncodeCore(lineToEncode.AsSpan(), allowedSpecial, disallowedSpecial);
+            return tokens;
         }
+#endif
 
         // keep this overload because it was part of previous public API:
         public string Decode(List<int> inputTokensToDecode)
@@ -134,5 +117,44 @@ namespace SharpToken
         }
 
 
+        #region Private
+
+        private List<int> EncodeCore(
+#if NET8_0_OR_GREATER
+            ReadOnlySpan<char> lineToEncode,
+#else
+            string lineToEncode,
+#endif
+            ISet<string> allowedSpecial = null,
+            ISet<string> disallowedSpecial = null
+        )
+        {
+            var allowedSpecialTokens = allowedSpecial is null
+                // When null allow nothing
+                ? Array.Empty<string>()
+                : allowedSpecial.Contains("all")
+                    ? (IReadOnlyCollection<string>) _specialTokenMappings.Keys
+                    // filter / validate list to only known special tokens:
+                    : (IReadOnlyCollection<string>) _specialTokenMappings.Keys.Where(allowedSpecial.Contains).ToArray();
+
+            var disallowedSpecialTokens = disallowedSpecial == null || disallowedSpecial.Contains("all")
+                // When null or all -> initialize with all except allowed
+                ? allowedSpecial is null
+                    ? _specialTokenMappings.Keys
+                    : _specialTokenMappings.Keys.Where(_ => !allowedSpecial.Contains(_))
+                // Else use provided list
+                : disallowedSpecial;
+
+            var match = disallowedSpecialTokens.FindMatch(lineToEncode);
+            if (match.Success)
+            {
+                throw new ArgumentException($"Disallowed special token found: {match.Value}");
+            }
+
+            var result = _bytePairEncodingCoreProcessor.EncodeNative(lineToEncode, allowedSpecialTokens);
+            return result;
+        }
+
+        #endregion
     }
 }
