@@ -13,6 +13,28 @@ in `..\SharpToken\SharpToken.Benchmark\bin\Release\net8.0\SharpToken.Benchmark.e
 ## Results:
 
 
+### commit | feat(performance): implement fast MultiBytePairEncoder with almost zero allocations | version: 1.2.17 + improvements MultiBytePairEncoder in net8.0
+
+BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3155/23H2/2023Update/SunValley3)
+AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
+.NET SDK 8.0.200
+  [Host]               : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET 6.0             : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
+  .NET 8.0             : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET Framework 4.7.1 : .NET Framework 4.8.1 (4.8.9181.0), X64 RyuJIT VectorSize=256
+
+
+| Method | Job                  | Runtime              | Mean       | Error    | StdDev   | Ratio | RatioSD | Gen0     | Gen1    | Allocated | Alloc Ratio |
+|------- |--------------------- |--------------------- |-----------:|---------:|---------:|------:|--------:|---------:|--------:|----------:|------------:|
+| Encode | .NET 6.0             | .NET 6.0             | 1,150.4 us | 22.87 us | 36.27 us |  0.65 |    0.02 |  93.7500 |  7.8125 | 771.21 KB |        0.89 |
+| Encode | .NET 8.0             | .NET 8.0             |   656.6 us | 12.76 us | 16.14 us |  0.38 |    0.01 |  11.7188 |       - | 100.23 KB |        0.12 |
+| Encode | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 1,754.3 us |  2.50 us |  2.09 us |  1.00 |    0.00 | 140.6250 | 11.7188 |  866.7 KB |        1.00 |
+
+**Notable Improvments for .NET 8.0**
+- 158 KB less allocations more then 2.5 times better!
+- 83 us faster
+- no Gen1 garbage produced
+
 ### commit | feat(performance): use compile time generated regex in net8.0 | version: 1.2.17 + improvements for regex in net8.0
 
 BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3155/23H2/2023Update/SunValley3)
