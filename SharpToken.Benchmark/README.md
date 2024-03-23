@@ -13,6 +13,28 @@ in `..\SharpToken\SharpToken.Benchmark\bin\Release\net8.0\SharpToken.Benchmark.e
 ## Results:
 
 
+### commit | feat(token-count): implement low allocation token count public method | version: 1.2.17 + improvements + count tokens benchmark
+
+BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3155/23H2/2023Update/SunValley3)
+AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
+.NET SDK 8.0.200
+  [Host]               : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET 6.0             : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
+  .NET 8.0             : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET Framework 4.7.1 : .NET Framework 4.8.1 (4.8.9181.0), X64 RyuJIT VectorSize=256
+
+
+| Method      | Job                  | Runtime              | Mean       | Error    | StdDev   | Ratio | Gen0     | Gen1   | Allocated | Alloc Ratio |
+|------------ |--------------------- |--------------------- |-----------:|---------:|---------:|------:|---------:|-------:|----------:|------------:|
+| Encode      | .NET 6.0             | .NET 6.0             | 1,113.1 us |  4.59 us |  3.59 us |  0.75 |  64.4531 | 5.8594 | 537.97 KB |        0.83 |
+| Encode      | .NET 8.0             | .NET 8.0             |   649.5 us |  6.04 us |  5.65 us |  0.44 |   5.8594 |      - |  51.48 KB |        0.08 |
+| Encode      | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 1,481.1 us | 13.32 us | 11.81 us |  1.00 | 105.4688 | 9.7656 | 652.02 KB |        1.00 |
+|             |                      |                      |            |          |          |       |          |        |           |             |
+| CountTokens | .NET 6.0             | .NET 6.0             | 1,038.1 us | 10.00 us |  9.36 us |  0.73 |  60.5469 | 1.9531 | 505.07 KB |        0.81 |
+| CountTokens | .NET 8.0             | .NET 8.0             |   603.3 us |  1.81 us |  1.51 us |  0.42 |   1.9531 |      - |  22.46 KB |        0.04 |
+| CountTokens | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 1,429.1 us | 19.10 us | 17.86 us |  1.00 |  99.6094 | 3.9063 |  622.4 KB |        1.00 |
+
+
 ### commit | feat(performance): backport some optimizations to net6.0 and netstandard | version: 1.2.17 + improvements optimizations to net6.0 and netstandard
 
 BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3155/23H2/2023Update/SunValley3)
