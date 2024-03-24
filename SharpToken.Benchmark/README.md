@@ -8,7 +8,49 @@ Make a release build and run the `SharpToken.Benchmark.exe`
 in `..\SharpToken\SharpToken.Benchmark\bin\Release\net8.0\SharpToken.Benchmark.exe`
 
 
+## Comparison to other Tokenizer
+
+**After Optimization:**
+
+```
+BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3296/23H2/2023Update/SunValley3)
+AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
+.NET SDK 8.0.200
+  [Host]   : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET 8.0 : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+```
+
+**Job=.NET 8.0  Runtime=.NET 8.0**
+
+| Method        | Mean     | Error   | StdDev  | Gen0       | Gen1      | Allocated |
+|-------------- |---------:|--------:|--------:|-----------:|----------:|----------:|
+| SharpToken    | 100.8 ms | 1.96 ms | 2.55 ms |  2000.0000 |         - |  22.13 MB |
+| TiktokenSharp | 214.3 ms | 4.09 ms | 3.82 ms | 42000.0000 | 1000.0000 | 338.98 MB |
+| TokenizerLib  | 126.5 ms | 2.45 ms | 3.10 ms | 27250.0000 | 1000.0000 | 217.82 MB |
+
+
+**Before Optimization:**
+
+```
+BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3296/23H2/2023Update/SunValley3)
+AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
+.NET SDK 8.0.200
+  [Host]   : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET 8.0 : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+```
+
+**Job=.NET 8.0  Runtime=.NET 8.0**
+
+| Method        | Mean     | Error   | StdDev  | Gen0       | Gen1      | Allocated |
+|-------------- |---------:|--------:|--------:|-----------:|----------:|----------:|
+| SharpToken    | 211.3 ms | 1.14 ms | 0.95 ms | 33000.0000 | 1000.0000 | 264.44 MB |
+| TiktokenSharp | 221.5 ms | 4.29 ms | 4.21 ms | 42000.0000 | 1000.0000 | 338.98 MB |
+| TokenizerLib  | 127.0 ms | 2.01 ms | 1.88 ms | 27200.0000 | 1000.0000 | 217.82 MB |
+
+
 ## Global Test
+
+- version: 1.2.17 (improved) after optimization
 
 ```
 BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3296/23H2/2023Update/SunValley3)
@@ -22,29 +64,62 @@ AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
 
 | Method                | Job                  | Runtime              | Mean          | Error       | StdDev      | Ratio | RatioSD | Gen0      | Gen1     | Gen2     | Allocated | Alloc Ratio |
 |---------------------- |--------------------- |--------------------- |--------------:|------------:|------------:|------:|--------:|----------:|---------:|---------:|----------:|------------:|
-| Encode_SmallText      | .NET 6.0             | .NET 6.0             |     57.181 us |   1.1231 us |   1.0505 us |  0.54 |    0.01 |    6.0425 |   0.3662 |        - |   50784 B |        0.80 |
-| Encode_SmallText      | .NET 8.0             | .NET 8.0             |     37.466 us |   0.2264 us |   0.2007 us |  0.35 |    0.01 |    0.0610 |        - |        - |     696 B |        0.01 |
-| Encode_SmallText      | .NET Framework 4.7.1 | .NET Framework 4.7.1 |    106.342 us |   1.8675 us |   1.9178 us |  1.00 |    0.00 |   10.1318 |   0.6104 |        - |   63876 B |        1.00 |
+| Encode_SmallText      | .NET 6.0             | .NET 6.0             |     59.950 us |   1.1894 us |   2.1142 us |  0.57 |    0.02 |    6.0425 |   0.3662 |        - |   50784 B |        0.80 |
+| Encode_SmallText      | .NET 8.0             | .NET 8.0             |     21.832 us |   0.0777 us |   0.0648 us |  0.21 |    0.00 |    0.0610 |        - |        - |     696 B |        0.01 |
+| Encode_SmallText      | .NET Framework 4.7.1 | .NET Framework 4.7.1 |    106.063 us |   2.1103 us |   1.8707 us |  1.00 |    0.00 |   10.1318 |   0.6104 |        - |   63876 B |        1.00 |
 |                       |                      |                      |               |             |             |       |         |           |          |          |           |             |
-| Encode_LargeText      | .NET 6.0             | .NET 6.0             | 13,910.718 us | 269.9655 us | 252.5259 us |  0.63 |    0.01 |  796.8750 | 312.5000 | 125.0000 | 6382274 B |        0.82 |
-| Encode_LargeText      | .NET 8.0             | .NET 8.0             |  6,071.416 us |  93.7597 us |  83.1155 us |  0.28 |    0.00 |         - |        - |        - |  155547 B |        0.02 |
-| Encode_LargeText      | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 21,966.802 us | 254.4615 us | 238.0234 us |  1.00 |    0.00 | 1375.0000 | 562.5000 | 187.5000 | 7752789 B |        1.00 |
+| Encode_LargeText      | .NET 6.0             | .NET 6.0             | 14,577.921 us | 288.6274 us | 527.7715 us |  0.67 |    0.03 |  796.8750 | 312.5000 | 125.0000 | 6382272 B |        0.82 |
+| Encode_LargeText      | .NET 8.0             | .NET 8.0             |  4,391.384 us |  86.2051 us |  80.6363 us |  0.20 |    0.01 |         - |        - |        - |  155547 B |        0.02 |
+| Encode_LargeText      | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 21,974.406 us | 387.1054 us | 362.0986 us |  1.00 |    0.00 | 1375.0000 | 562.5000 | 187.5000 | 7752266 B |        1.00 |
 |                       |                      |                      |               |             |             |       |         |           |          |          |           |             |
-| Decode_SmallText      | .NET 6.0             | .NET 6.0             |      2.630 us |   0.0352 us |   0.0275 us |  0.69 |    0.01 |    0.2747 |        - |        - |    2320 B |        0.98 |
-| Decode_SmallText      | .NET 8.0             | .NET 8.0             |      1.656 us |   0.0324 us |   0.0385 us |  0.43 |    0.01 |    0.2766 |        - |        - |    2320 B |        0.98 |
-| Decode_SmallText      | .NET Framework 4.7.1 | .NET Framework 4.7.1 |      3.803 us |   0.0579 us |   0.0542 us |  1.00 |    0.00 |    0.3738 |        - |        - |    2375 B |        1.00 |
+| Decode_SmallText      | .NET 6.0             | .NET 6.0             |      2.587 us |   0.0442 us |   0.0413 us |  0.69 |    0.01 |    0.2747 |        - |        - |    2320 B |        0.98 |
+| Decode_SmallText      | .NET 8.0             | .NET 8.0             |      1.609 us |   0.0306 us |   0.0352 us |  0.43 |    0.01 |    0.2766 |        - |        - |    2320 B |        0.98 |
+| Decode_SmallText      | .NET Framework 4.7.1 | .NET Framework 4.7.1 |      3.775 us |   0.0524 us |   0.0465 us |  1.00 |    0.00 |    0.3738 |        - |        - |    2375 B |        1.00 |
 |                       |                      |                      |               |             |             |       |         |           |          |          |           |             |
-| Decode_LargeText      | .NET 6.0             | .NET 6.0             |    481.238 us |   3.3083 us |   2.5829 us |  0.82 |    0.01 |   29.2969 |  11.7188 |   7.8125 |  286982 B |        1.00 |
-| Decode_LargeText      | .NET 8.0             | .NET 8.0             |    455.787 us |   7.8000 us |   7.2961 us |  0.77 |    0.01 |   25.3906 |   8.3008 |   3.9063 |  286979 B |        1.00 |
-| Decode_LargeText      | .NET Framework 4.7.1 | .NET Framework 4.7.1 |    590.159 us |   6.4986 us |   6.0788 us |  1.00 |    0.00 |   38.0859 |  15.6250 |   9.7656 |  287512 B |        1.00 |
+| Decode_LargeText      | .NET 6.0             | .NET 6.0             |    476.205 us |   4.9629 us |   4.6423 us |  0.81 |    0.02 |   30.2734 |  13.1836 |   8.7891 |  286982 B |        1.00 |
+| Decode_LargeText      | .NET 8.0             | .NET 8.0             |    446.240 us |   5.9289 us |   5.2558 us |  0.76 |    0.02 |   25.3906 |   8.3008 |   3.9063 |  286979 B |        1.00 |
+| Decode_LargeText      | .NET Framework 4.7.1 | .NET Framework 4.7.1 |    584.655 us |   9.8253 us |   9.1906 us |  1.00 |    0.00 |   38.0859 |  15.6250 |   9.7656 |  287525 B |        1.00 |
 |                       |                      |                      |               |             |             |       |         |           |          |          |           |             |
-| CountTokens_SmallText | .NET 6.0             | .NET 6.0             |     57.812 us |   1.0915 us |   1.0210 us |  0.55 |    0.02 |    5.9814 |   0.3052 |        - |   50080 B |       0.790 |
-| CountTokens_SmallText | .NET 8.0             | .NET 8.0             |     37.646 us |   0.4215 us |   0.3737 us |  0.36 |    0.01 |         - |        - |        - |     184 B |       0.003 |
-| CountTokens_SmallText | .NET Framework 4.7.1 | .NET Framework 4.7.1 |    106.034 us |   2.1028 us |   2.0652 us |  1.00 |    0.00 |   10.0098 |        - |        - |   63355 B |       1.000 |
+| CountTokens_SmallText | .NET 6.0             | .NET 6.0             |     57.592 us |   1.1164 us |   1.2409 us |  0.55 |    0.01 |    5.9814 |   0.3052 |        - |   50080 B |       0.790 |
+| CountTokens_SmallText | .NET 8.0             | .NET 8.0             |     21.703 us |   0.2386 us |   0.2232 us |  0.21 |    0.00 |         - |        - |        - |     184 B |       0.003 |
+| CountTokens_SmallText | .NET Framework 4.7.1 | .NET Framework 4.7.1 |    104.900 us |   1.6103 us |   1.4275 us |  1.00 |    0.00 |   10.0098 |        - |        - |   63355 B |       1.000 |
 |                       |                      |                      |               |             |             |       |         |           |          |          |           |             |
-| CountTokens_LargeText | .NET 6.0             | .NET 6.0             | 13,744.503 us | 184.7183 us | 172.7856 us |  0.64 |    0.01 |  781.2500 | 328.1250 | 125.0000 | 6122801 B |       0.806 |
-| CountTokens_LargeText | .NET 8.0             | .NET 8.0             |  5,915.175 us | 114.8400 us | 145.2358 us |  0.27 |    0.00 |         - |        - |        - |     195 B |       0.000 |
-| CountTokens_LargeText | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 21,604.518 us | 164.2992 us | 153.6855 us |  1.00 |    0.00 | 1343.7500 | 531.2500 | 187.5000 | 7597916 B |       1.000 |
+| CountTokens_LargeText | .NET 6.0             | .NET 6.0             | 13,565.199 us | 117.2530 us | 103.9417 us |  0.63 |    0.01 |  781.2500 | 328.1250 | 125.0000 | 6122858 B |       0.806 |
+| CountTokens_LargeText | .NET 8.0             | .NET 8.0             |  4,293.409 us |  70.0026 us |  65.4805 us |  0.20 |    0.00 |         - |        - |        - |     195 B |       0.000 |
+| CountTokens_LargeText | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 21,647.381 us | 336.1202 us | 314.4071 us |  1.00 |    0.00 | 1343.7500 | 531.2500 | 187.5000 | 7598360 B |       1.000 |
+
+
+
+- version: 1.2.17 (baseline) before optimization
+
+```
+BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3296/23H2/2023Update/SunValley3)
+AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
+.NET SDK 8.0.200
+  [Host]               : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET 6.0             : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
+  .NET 8.0             : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET Framework 4.7.1 : .NET Framework 4.8.1 (4.8.9181.0), X64 RyuJIT VectorSize=256
+```
+
+| Method           | Job                  | Runtime              | Mean          | Error       | StdDev      | Ratio | RatioSD | Gen0      | Gen1      | Gen2     | Allocated   | Alloc Ratio |
+|----------------- |--------------------- |--------------------- |--------------:|------------:|------------:|------:|--------:|----------:|----------:|---------:|------------:|------------:|
+| Encode_SmallText | .NET 6.0             | .NET 6.0             |     82.479 us |   0.1286 us |   0.1074 us |  0.48 |    0.00 |   10.1318 |    0.6104 |        - |    82.89 KB |        0.66 |
+| Encode_SmallText | .NET 8.0             | .NET 8.0             |     59.351 us |   0.4628 us |   0.3864 us |  0.35 |    0.00 |   10.1318 |    0.6104 |        - |    82.85 KB |        0.66 |
+| Encode_SmallText | .NET Framework 4.7.1 | .NET Framework 4.7.1 |    171.859 us |   1.8375 us |   1.6289 us |  1.00 |    0.00 |   20.2637 |    1.2207 |        - |   125.24 KB |        1.00 |
+|                  |                      |                      |               |             |             |       |         |           |           |          |             |             |
+| Encode_LargeText | .NET 6.0             | .NET 6.0             | 18,357.779 us |  81.1564 us |  71.9430 us |  0.52 |    0.01 | 1500.0000 |  500.0000 | 156.2500 | 11171.52 KB |        0.66 |
+| Encode_LargeText | .NET 8.0             | .NET 8.0             | 16,315.221 us | 323.6828 us | 503.9351 us |  0.46 |    0.02 | 1500.0000 |  500.0000 | 156.2500 | 11171.35 KB |        0.66 |
+| Encode_LargeText | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 35,173.965 us | 681.1456 us | 668.9760 us |  1.00 |    0.00 | 3133.3333 | 1400.0000 | 400.0000 | 16983.19 KB |        1.00 |
+|                  |                      |                      |               |             |             |       |         |           |           |          |             |             |
+| Decode_SmallText | .NET 6.0             | .NET 6.0             |      2.220 us |   0.0211 us |   0.0187 us |  0.65 |    0.01 |    0.2708 |         - |        - |     2.23 KB |        0.98 |
+| Decode_SmallText | .NET 8.0             | .NET 8.0             |      1.606 us |   0.0200 us |   0.0187 us |  0.47 |    0.01 |    0.2728 |         - |        - |     2.23 KB |        0.98 |
+| Decode_SmallText | .NET Framework 4.7.1 | .NET Framework 4.7.1 |      3.406 us |   0.0430 us |   0.0403 us |  1.00 |    0.00 |    0.3700 |         - |        - |     2.29 KB |        1.00 |
+|                  |                      |                      |               |             |             |       |         |           |           |          |             |             |
+| Decode_LargeText | .NET 6.0             | .NET 6.0             |    432.534 us |   1.9471 us |   1.8213 us |  0.80 |    0.02 |   33.6914 |   18.5547 |  12.2070 |   280.23 KB |        1.00 |
+| Decode_LargeText | .NET 8.0             | .NET 8.0             |    373.513 us |   1.3223 us |   1.1722 us |  0.69 |    0.01 |   34.1797 |   19.0430 |  12.6953 |   280.23 KB |        1.00 |
+| Decode_LargeText | .NET Framework 4.7.1 | .NET Framework 4.7.1 |    540.774 us |  10.3775 us |  10.1921 us |  1.00 |    0.00 |   40.0391 |   17.5781 |  11.7188 |   280.41 KB |        1.00 |
+
 
 
 ## Results:

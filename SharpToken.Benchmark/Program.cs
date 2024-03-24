@@ -8,7 +8,7 @@ namespace SharpToken.Benchmark
     {
         public static void Main(string[] args)
         {
-            var summary = BenchmarkRunner.Run<SharpTokenBenchmark>();
+            var summary = BenchmarkRunner.Run<CompareBenchmark>();
             Console.ReadLine();
         }
     }
