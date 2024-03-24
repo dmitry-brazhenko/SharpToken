@@ -182,6 +182,106 @@ compatibility with the Python tiktoken library. These test cases validate the fu
 providing a reliable reference for developers. Running the unit tests and verifying the test cases helps maintain
 consistency between the C# SharpToken library and the original Python implementation.
 
+## Performance Compared to TiktokenSharp and TokenizerLib
+
+SharpToken is the fastest library with the lowest allocations!
+
+<details>
+<summary>Benchmark Code</summary>
+
+```csharp
+[SimpleJob(RuntimeMoniker.Net60)]
+[SimpleJob(RuntimeMoniker.Net80)]
+[SimpleJob(RuntimeMoniker.Net471)]
+[RPlotExporter]
+[MemoryDiagnoser]
+public class CompareBenchmark
+{
+    private GptEncoding _sharpToken;
+    private TikToken _tikToken;
+    private ITokenizer _tokenizer;
+    private string _kLongText;
+
+    [GlobalSetup]
+    public async Task Setup()
+    {
+        _sharpToken = GptEncoding.GetEncoding("cl100k_base");
+        _tikToken = await TikToken.GetEncodingAsync("cl100k_base").ConfigureAwait(false);
+        _tokenizer = await TokenizerBuilder.CreateByModelNameAsync("gpt-4").ConfigureAwait(false);
+        _kLongText = "King Lear, one of Shakespeare's darkest and most savage plays, tells the story of the foolish and Job-like Lear, who divides his kingdom, as he does his affections, according to vanity and whim. Lear’s failure as a father engulfs himself and his world in turmoil and tragedy.";
+    }
+
+    [Benchmark]
+    public int SharpToken()
+    {
+        var sum = 0;
+        for (var i = 0; i < 10000; i++)
+        {
+            var encoded = _sharpToken.Encode(_kLongText);
+            var decoded = _sharpToken.Decode(encoded);
+            sum += decoded.Length;
+        }
+
+        return sum;
+    }
+
+    [Benchmark]
+    public int TiktokenSharp()
+    {
+        var sum = 0;
+        for (var i = 0; i < 10000; i++)
+        {
+            var encoded = _tikToken.Encode(_kLongText);
+            var decoded = _tikToken.Decode(encoded);
+            sum += decoded.Length;
+        }
+
+        return sum;
+    }
+
+    [Benchmark]
+    public int TokenizerLib()
+    {
+        var sum = 0;
+        for (var i = 0; i < 10000; i++)
+        {
+            var encoded = _tokenizer.Encode(_kLongText);
+            var decoded = _tokenizer.Decode(encoded.ToArray());
+            sum += decoded.Length;
+        }
+
+        return sum;
+    }
+}
+```
+
+</details>
+
+```
+BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3296/23H2/2023Update/SunValley3)
+AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
+.NET SDK 8.0.200
+  [Host]               : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET 6.0             : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
+  .NET 8.0             : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET Framework 4.7.1 : .NET Framework 4.8.1 (4.8.9181.0), X64 RyuJIT VectorSize=256
+```
+
+| Method         | Job                  | Runtime              | Mean     | Error    | StdDev   | Gen0       | Gen1      | Allocated |
+|--------------- |--------------------- |--------------------- |---------:|---------:|---------:|-----------:|----------:|----------:|
+| **SharpToken** | .NET 8.0             | .NET 8.0             | 100.4 ms |  1.95 ms |  1.91 ms |  2000.0000 |         - |  22.13 MB |
+| **SharpToken** | .NET 6.0             | .NET 6.0             | 169.9 ms |  2.42 ms |  2.15 ms | 24333.3333 | 1000.0000 |  196.3 MB |
+| **SharpToken** | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 455.3 ms |  8.34 ms |  6.97 ms | 34000.0000 | 1000.0000 | 204.39 MB |
+|                |                      |                      |          |          |          |            |           |           |
+| *TiktokenSharp*| .NET 8.0             | .NET 8.0             | 211.4 ms |  1.83 ms |  1.53 ms | 42000.0000 | 1000.0000 | 338.98 MB |
+| *TiktokenSharp*| .NET 6.0             | .NET 6.0             | 258.6 ms |  5.09 ms |  6.25 ms | 39000.0000 | 1000.0000 | 313.26 MB |
+| *TiktokenSharp*| .NET Framework 4.7.1 | .NET Framework 4.7.1 | 638.3 ms | 12.47 ms | 16.21 ms | 63000.0000 | 1000.0000 | 378.31 MB |
+|                |                      |                      |          |          |          |            |           |           |
+| *TokenizerLib* | .NET 8.0             | .NET 8.0             | 124.4 ms |  1.81 ms |  1.60 ms | 27250.0000 | 1000.0000 | 217.82 MB |
+| *TokenizerLib* | .NET 6.0             | .NET 6.0             | 165.5 ms |  1.38 ms |  1.16 ms | 27000.0000 | 1000.0000 | 217.82 MB |
+| *TokenizerLib* | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 499.7 ms |  9.81 ms | 14.07 ms | 40000.0000 | 1000.0000 | 243.79 MB |
+
+
 ## Performance
 
 SharpToken is extreamly performance optimized on net8.0.
@@ -212,34 +312,34 @@ AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
 | Method                   | Mean          | Error       | StdDev      | Ratio | RatioSD | Allocated | Alloc Ratio |
 |------------------------- |--------------:|------------:|------------:|------:|--------:|----------:|------------:|
 | **.NET 8.0**             |               |             |             |       |         |           |             |
-| Encode_SmallText         |     37.466 us |   0.2264 us |   0.2007 us |  0.35 |    0.01 |     696 B |        0.01 |
-| Encode_LargeText         |  6,071.416 us |  93.7597 us |  83.1155 us |  0.28 |    0.00 |  155547 B |        0.02 |
+| Encode_SmallText         |     22.649 us |   0.4244 us |   0.4359 us |  0.28 |    0.01 |     696 B |        0.02 |
+| Encode_LargeText         |  4,542.505 us |  87.7988 us | 104.5182 us |  0.24 |    0.01 |  155547 B |        0.03 |
 |                          |               |             |             |       |         |           |             |
-| Decode_SmallText         |      1.656 us |   0.0324 us |   0.0385 us |  0.43 |    0.01 |    2320 B |        0.98 |
-| Decode_LargeText         |    455.787 us |   7.8000 us |   7.2961 us |  0.77 |    0.01 |  286979 B |        1.00 |
+| Decode_SmallText         |      1.623 us |   0.0324 us |   0.0373 us |  0.44 |    0.02 |    2320 B |        0.98 |
+| Decode_LargeText         |    454.570 us |   6.8980 us |   6.4524 us |  0.80 |    0.02 |  286979 B |        1.00 |
 |                          |               |             |             |       |         |           |             |
-| CountTokens_SmallText    |     37.646 us |   0.4215 us |   0.3737 us |  0.36 |    0.01 |     184 B |       0.003 |
-| CountTokens_LargeText    |  5,915.175 us | 114.8400 us | 145.2358 us |  0.27 |    0.00 |     195 B |       0.000 |
+| CountTokens_SmallText    |     22.008 us |   0.1165 us |   0.0909 us |  0.28 |    0.00 |     184 B |       0.005 |
+| CountTokens_LargeText    |  4,231.353 us |  14.5157 us |  11.3329 us |  0.23 |    0.00 |     195 B |       0.000 |
 |                          |               |             |             |       |         |           |             |
 | **.NET 6.0**             |               |             |             |       |         |           |             |
-| Encode_SmallText         |     57.181 us |   1.1231 us |   1.0505 us |  0.54 |    0.01 |   50784 B |        0.80 |
-| Encode_LargeText         | 13,910.718 us | 269.9655 us | 252.5259 us |  0.63 |    0.01 | 6382274 B |        0.82 |
+| Encode_SmallText         |     36.370 us |   0.7178 us |   1.0962 us |  0.45 |    0.02 |   37344 B |        0.91 |
+| Encode_LargeText         | 11,213.070 us | 219.6291 us | 269.7243 us |  0.59 |    0.02 | 5062574 B |        0.91 |
 |                          |               |             |             |       |         |           |             |
-| Decode_SmallText         |      2.630 us |   0.0352 us |   0.0275 us |  0.69 |    0.01 |    2320 B |        0.98 |
-| Decode_LargeText         |    481.238 us |   3.3083 us |   2.5829 us |  0.82 |    0.01 |  286982 B |        1.00 |
+| Decode_SmallText         |      2.588 us |   0.0394 us |   0.0350 us |  0.70 |    0.02 |    2320 B |        0.98 |
+| Decode_LargeText         |    489.467 us |   8.9195 us |   8.3433 us |  0.86 |    0.02 |  286985 B |        1.00 |
 |                          |               |             |             |       |         |           |             |
-| CountTokens_SmallText    |     57.812 us |   1.0915 us |   1.0210 us |  0.55 |    0.02 |   50080 B |       0.790 |
-| CountTokens_LargeText    | 13,744.503 us | 184.7183 us | 172.7856 us |  0.64 |    0.01 | 6122801 B |       0.806 |
+| CountTokens_SmallText    |     34.758 us |   0.2027 us |   0.1896 us |  0.45 |    0.01 |   36832 B |       0.907 |
+| CountTokens_LargeText    | 11,252.083 us | 215.8912 us | 212.0340 us |  0.61 |    0.01 | 4907169 B |       0.907 |
 |                          |               |             |             |       |         |           |             |
 | **.NET Framework 4.7.1** |               |             |             |       |         |           |             |
-| Encode_SmallText         |    106.342 us |   1.8675 us |   1.9178 us |  1.00 |    0.00 |   63876 B |        1.00 |
-| Encode_LargeText         | 21,966.802 us | 254.4615 us | 238.0234 us |  1.00 |    0.00 | 7752789 B |        1.00 |
+| Encode_SmallText         |     79.947 us |   1.5621 us |   3.0097 us |  1.00 |    0.00 |   41138 B |        1.00 |
+| Encode_LargeText         | 18,961.252 us | 253.1816 us | 236.8262 us |  1.00 |    0.00 | 5567685 B |        1.00 |
 |                          |               |             |             |       |         |           |             |
-| Decode_SmallText         |      3.803 us |   0.0579 us |   0.0542 us |  1.00 |    0.00 |    2375 B |        1.00 |
-| Decode_LargeText         |    590.159 us |   6.4986 us |   6.0788 us |  1.00 |    0.00 |  287512 B |        1.00 |
+| Decode_SmallText         |      3.723 us |   0.0728 us |   0.0997 us |  1.00 |    0.00 |    2375 B |        1.00 |
+| Decode_LargeText         |    570.787 us |  11.0356 us |  11.8080 us |  1.00 |    0.00 |  287496 B |        1.00 |
 |                          |               |             |             |       |         |           |             |
-| CountTokens_SmallText    |    106.034 us |   2.1028 us |   2.0652 us |  1.00 |    0.00 |   63355 B |       1.000 |
-| CountTokens_LargeText    | 21,604.518 us | 164.2992 us | 153.6855 us |  1.00 |    0.00 | 7597916 B |       1.000 |
+| CountTokens_SmallText    |     77.521 us |   1.0802 us |   0.9020 us |  1.00 |    0.00 |   40616 B |       1.000 |
+| CountTokens_LargeText    | 18,485.392 us | 313.5834 us | 277.9836 us |  1.00 |    0.00 | 5413237 B |       1.000 |
 
 ## Contributions and Feedback
 

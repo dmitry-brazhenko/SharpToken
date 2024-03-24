@@ -16,17 +16,25 @@ in `..\SharpToken\SharpToken.Benchmark\bin\Release\net8.0\SharpToken.Benchmark.e
 BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3296/23H2/2023Update/SunValley3)
 AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
 .NET SDK 8.0.200
-  [Host]   : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
-  .NET 8.0 : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  [Host]               : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET 6.0             : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
+  .NET 8.0             : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET Framework 4.7.1 : .NET Framework 4.8.1 (4.8.9181.0), X64 RyuJIT VectorSize=256
 ```
 
-**Job=.NET 8.0  Runtime=.NET 8.0**
-
-| Method        | Mean     | Error   | StdDev  | Gen0       | Gen1      | Allocated |
-|-------------- |---------:|--------:|--------:|-----------:|----------:|----------:|
-| SharpToken    | 100.8 ms | 1.96 ms | 2.55 ms |  2000.0000 |         - |  22.13 MB |
-| TiktokenSharp | 214.3 ms | 4.09 ms | 3.82 ms | 42000.0000 | 1000.0000 | 338.98 MB |
-| TokenizerLib  | 126.5 ms | 2.45 ms | 3.10 ms | 27250.0000 | 1000.0000 | 217.82 MB |
+| Method         | Job                  | Runtime              | Mean     | Error    | StdDev   | Gen0       | Gen1      | Allocated |
+|--------------- |--------------------- |--------------------- |---------:|---------:|---------:|-----------:|----------:|----------:|
+| **SharpToken** | .NET 8.0             | .NET 8.0             | 100.4 ms |  1.95 ms |  1.91 ms |  2000.0000 |         - |  22.13 MB |
+| **SharpToken** | .NET 6.0             | .NET 6.0             | 169.9 ms |  2.42 ms |  2.15 ms | 24333.3333 | 1000.0000 |  196.3 MB |
+| **SharpToken** | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 455.3 ms |  8.34 ms |  6.97 ms | 34000.0000 | 1000.0000 | 204.39 MB |
+|                |                      |                      |          |          |          |            |           |           |
+| *TiktokenSharp*| .NET 8.0             | .NET 8.0             | 211.4 ms |  1.83 ms |  1.53 ms | 42000.0000 | 1000.0000 | 338.98 MB |
+| *TiktokenSharp*| .NET 6.0             | .NET 6.0             | 258.6 ms |  5.09 ms |  6.25 ms | 39000.0000 | 1000.0000 | 313.26 MB |
+| *TiktokenSharp*| .NET Framework 4.7.1 | .NET Framework 4.7.1 | 638.3 ms | 12.47 ms | 16.21 ms | 63000.0000 | 1000.0000 | 378.31 MB |
+|                |                      |                      |          |          |          |            |           |           |
+| *TokenizerLib* | .NET 8.0             | .NET 8.0             | 124.4 ms |  1.81 ms |  1.60 ms | 27250.0000 | 1000.0000 | 217.82 MB |
+| *TokenizerLib* | .NET 6.0             | .NET 6.0             | 165.5 ms |  1.38 ms |  1.16 ms | 27000.0000 | 1000.0000 | 217.82 MB |
+| *TokenizerLib* | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 499.7 ms |  9.81 ms | 14.07 ms | 40000.0000 | 1000.0000 | 243.79 MB |
 
 
 **Before Optimization:**
@@ -35,17 +43,25 @@ AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
 BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3296/23H2/2023Update/SunValley3)
 AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
 .NET SDK 8.0.200
-  [Host]   : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
-  .NET 8.0 : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  [Host]               : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET 6.0             : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
+  .NET 8.0             : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+  .NET Framework 4.7.1 : .NET Framework 4.8.1 (4.8.9181.0), X64 RyuJIT VectorSize=256
 ```
 
-**Job=.NET 8.0  Runtime=.NET 8.0**
-
-| Method        | Mean     | Error   | StdDev  | Gen0       | Gen1      | Allocated |
-|-------------- |---------:|--------:|--------:|-----------:|----------:|----------:|
-| SharpToken    | 211.3 ms | 1.14 ms | 0.95 ms | 33000.0000 | 1000.0000 | 264.44 MB |
-| TiktokenSharp | 221.5 ms | 4.29 ms | 4.21 ms | 42000.0000 | 1000.0000 | 338.98 MB |
-| TokenizerLib  | 127.0 ms | 2.01 ms | 1.88 ms | 27200.0000 | 1000.0000 | 217.82 MB |
+| Method         | Job                  | Runtime              | Mean     | Error    | StdDev  | Gen0       | Gen1      | Allocated |
+|--------------- |--------------------- |--------------------- |---------:|---------:|--------:|-----------:|----------:|----------:|
+| **SharpToken** | .NET 8.0             | .NET 8.0             | 214.1 ms |  4.26 ms | 3.99 ms | 33000.0000 | 1000.0000 | 264.44 MB |
+| **SharpToken** | .NET 6.0             | .NET 6.0             | 267.9 ms |  2.61 ms | 2.31 ms | 33000.0000 | 1000.0000 | 264.82 MB |
+| **SharpToken** | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 640.2 ms |  9.03 ms | 7.54 ms | 54000.0000 | 2000.0000 | 326.51 MB |
+|                |                      |                      |          |          |          |            |           |           |
+| *TiktokenSharp*| .NET 8.0             | .NET 8.0             | 218.2 ms |  4.25 ms | 6.49 ms | 42000.0000 | 1000.0000 | 338.98 MB |
+| *TiktokenSharp*| .NET 6.0             | .NET 6.0             | 250.1 ms |  1.64 ms | 1.28 ms | 39000.0000 | 1000.0000 | 313.26 MB |
+| *TiktokenSharp*| .NET Framework 4.7.1 | .NET Framework 4.7.1 | 654.2 ms | 11.57 ms | 9.66 ms | 63000.0000 | 1000.0000 | 378.31 MB |
+|                |                      |                      |          |          |          |            |           |           |
+| *TokenizerLib* | .NET 8.0             | .NET 8.0             | 130.3 ms |  2.29 ms | 2.03 ms | 27200.0000 | 1000.0000 | 217.82 MB |
+| *TokenizerLib* | .NET 6.0             | .NET 6.0             | 166.3 ms |  0.74 ms | 0.58 ms | 27000.0000 | 1000.0000 | 217.82 MB |
+| *TokenizerLib* | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 489.4 ms |  6.41 ms | 5.68 ms | 40000.0000 | 1000.0000 | 243.79 MB |
 
 
 ## Global Test
