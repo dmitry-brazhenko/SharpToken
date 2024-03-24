@@ -2,6 +2,7 @@
 using System;
 using System.Buffers;
 #endif
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 
@@ -29,7 +30,7 @@ namespace SharpToken
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public
 #if NET
-            readonly 
+            readonly
 #endif
             void Initialize(ReadOnlySpan<byte> piece, BytePairIndex encoder)
         {
@@ -63,12 +64,48 @@ namespace SharpToken
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void RemoveAt(int index)
         {
-            // TODO optimize with multibyte instructions NOTE Array.Copy does not work!
-            Length--;
-            for (var i = index; i < Length; i++)
+            var len = --Length;
+
+#if NET8_0_OR_GREATER
+            var size = Vector<int>.Count;
             {
-                _index[i] = _index[i + 1];
+                for (var i = index; i < len; i++)
+                {
+                    if (len - i > size)
+                    {
+                        var startIndex = i + 1;
+                        var span = _index.AsSpan(startIndex..(startIndex + size));
+                        var vector = new Vector<int>(span);
+                        vector.StoreUnsafe(ref _index[i]);
+                        i += 7;
+                    }
+                    else
+                    {
+                        _index[i] = _index[i + 1];
+                    }
+                }
             }
+#else
+            for (var i = index; i < len; i++)
+            {
+                if (len - i >= 8)
+                {
+                    _index[i] = _index[i + 1];
+                    _index[i + 1] = _index[i + 2];
+                    _index[i + 2] = _index[i + 3];
+                    _index[i + 3] = _index[i + 4];
+                    _index[i + 4] = _index[i + 5];
+                    _index[i + 5] = _index[i + 6];
+                    _index[i + 6] = _index[i + 7];
+                    _index[i + 7] = _index[i + 8];
+                    i += 7;
+                }
+                else
+                {
+                    _index[i] = _index[i + 1];
+                }
+            }
+#endif
         }
 
 #if NET
