@@ -1,4 +1,5 @@
 #if NET8_0_OR_GREATER
+#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -30,10 +31,15 @@ internal sealed class BytePairIndex : IReadOnlyCollection<KeyValuePair<byte[], i
 
         var result = Run(0, _values);
 
-        _rootNode = MakeNode(result);
+        _rootNode = MakeNode(result) ?? throw new ArgumentException("Parameter resulted in an empty collection!", nameof(data));
 
-        static Node MakeNode(InnerNode[] list)
+        static Node? MakeNode(InnerNode[] list)
         {
+            if (list.Length == 0)
+            {
+                return null;
+            }
+
             var node = new Node(
                 SearchIndex: list.Select(_ => _.Key).ToArray(),
                 Children: list.Select(_ => MakeNode(_.Nodes)).ToArray(),
@@ -99,6 +105,10 @@ internal sealed class BytePairIndex : IReadOnlyCollection<KeyValuePair<byte[], i
             }
 
             node = node.Children[index];
+            if (node is null)
+            {
+                break;
+            }
 
             i++;
         }
@@ -113,7 +123,7 @@ internal sealed class BytePairIndex : IReadOnlyCollection<KeyValuePair<byte[], i
 
     private sealed record Node(
         ReadOnlyMemory<byte> SearchIndex,
-        Node[] Children,
+        Node?[] Children,
         int?[] Values
     );
 
