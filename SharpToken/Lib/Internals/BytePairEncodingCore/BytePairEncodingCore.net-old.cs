@@ -67,10 +67,12 @@ namespace SharpToken
 #else
                         var piece = Encoding.UTF8.GetBytes(segment);
 #endif
-
-                        if (piece.Length == 1)
+                        if (
+                            piece.Length <= Encoder.MaxKeyLength &&
+                            Encoder.TryGetValue(piece, out var tkn)
+                        )
                         {
-                            encodedTokens?.Add(Encoder[piece]);
+                            encodedTokens?.Add(tkn);
                             count++;
                             continue;
                         }

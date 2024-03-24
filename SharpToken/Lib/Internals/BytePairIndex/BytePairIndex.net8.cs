@@ -17,6 +17,8 @@ internal sealed class BytePairIndex : IReadOnlyCollection<KeyValuePair<byte[], i
     private readonly Node _rootNode;
     private readonly IDictionary<byte[], int> _values;
 
+    public int MaxKeyLength { get; private set; }
+
     /// <summary>
     /// NOTE: does not support empty byte array keys!
     /// Keys must be unique! This implementation does not validate input!
@@ -41,8 +43,13 @@ internal sealed class BytePairIndex : IReadOnlyCollection<KeyValuePair<byte[], i
             return node;
         }
 
-        static InnerNode[] Run(int i, IEnumerable<KeyValuePair<byte[], int>> values)
+        InnerNode[] Run(int i, IEnumerable<KeyValuePair<byte[], int>> values)
         {
+            if (i > MaxKeyLength)
+            {
+                MaxKeyLength = i;
+            }
+
             var nodes = values
                 .Select(_ => (Byte: _.Key[i], Value: _))
                 .GroupBy(_ => _.Byte)
@@ -71,8 +78,8 @@ internal sealed class BytePairIndex : IReadOnlyCollection<KeyValuePair<byte[], i
         var node = _rootNode;
 
         var i = 0;
-        var len = key.Length;
-        while (i < len)
+        var len = key.Length - 1;
+        while (i <= len)
         {
             var b = key[i];
 
@@ -84,7 +91,7 @@ internal sealed class BytePairIndex : IReadOnlyCollection<KeyValuePair<byte[], i
                 return false;
             }
 
-            if (i == len - 1)
+            if (i == len)
             {
                 var found = node.Values[index];
                 value = found ?? default;
