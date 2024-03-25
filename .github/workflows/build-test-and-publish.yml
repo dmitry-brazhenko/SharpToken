@@ -10,6 +10,7 @@ jobs:
     uses: .github/workflows/reusable_build_test.yml
 
   build-test-publish:
+    needs: call-reusable-build-test
     runs-on: windows-latest
 
     steps:

@@ -10,6 +10,7 @@ jobs:
     uses: ./.github/workflows/dotnet-build-test.yml
 
   build-test:
+    needs: call-reusable-build-test
     runs-on: windows-latest
 
     steps:
