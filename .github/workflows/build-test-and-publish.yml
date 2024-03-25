@@ -7,7 +7,7 @@ on:
 
 jobs:
   call-reusable-build-test:
-    uses: .github/workflows/reusable_build_test.yml
+    uses: ./.github/workflows/dotnet-build-test.yml
 
   build-test-publish:
     needs: call-reusable-build-test
