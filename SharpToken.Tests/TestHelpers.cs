@@ -1,35 +1,41 @@
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace SharpToken.Tests;
-
-public static class TestHelpers
+namespace SharpToken.Tests
 {
-    public static List<Tuple<string, string, List<int>>> ReadTestPlans(string resourceName)
+    public static class TestHelpers
     {
-        var testPlans = new List<Tuple<string, string, List<int>>>();
-        var assembly = Assembly.GetExecutingAssembly();
-
-        using var stream = assembly.GetManifestResourceStream(resourceName) ?? throw new InvalidOperationException();
-        using var reader = new StreamReader(stream);
-
-        while (reader.ReadLine() is { } line)
+        public static List<Tuple<string, string, List<int>>> ReadTestPlans(string resourceName)
         {
-            if (line.StartsWith("EncodingName: "))
+            var testPlans = new List<Tuple<string, string, List<int>>>();
+            var assembly = Assembly.GetExecutingAssembly();
+
+            using var stream = assembly.GetManifestResourceStream(resourceName) ??
+                               throw new InvalidOperationException();
+            using var reader = new StreamReader(stream);
+
+            while (reader.ReadLine() is { } line)
             {
-                var encodingName = line.Substring("EncodingName: ".Length);
-                var sample = reader.ReadLine()!.Substring("Sample: ".Length);
-                var encodedStr = reader.ReadLine()!.Substring("Encoded: ".Length);
+                if (line.StartsWith("EncodingName: "))
+                {
+                    var encodingName = line.Substring("EncodingName: ".Length);
+                    var sample = reader.ReadLine()!.Substring("Sample: ".Length);
+                    var encodedStr = reader.ReadLine()!.Substring("Encoded: ".Length);
 
-                var encoded = Regex.Matches(encodedStr, @"\d+")
-                    .Select(m => int.Parse(m.Value, CultureInfo.InvariantCulture))
-                    .ToList();
+                    var encoded = Regex.Matches(encodedStr, @"\d+")
+                        .Select(m => int.Parse(m.Value, CultureInfo.InvariantCulture))
+                        .ToList();
 
-                testPlans.Add(Tuple.Create(encodingName, sample, encoded));
+                    testPlans.Add(Tuple.Create(encodingName, sample, encoded));
+                }
             }
-        }
 
-        return testPlans;
+            return testPlans;
+        }
     }
 }

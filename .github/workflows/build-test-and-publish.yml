@@ -6,12 +6,16 @@ on:
       - main # or your default branch name
 
 jobs:
+  call-reusable-build-test:
+    uses: .github/workflows/reusable_build_test.yml
+
   build-test-publish:
+    needs: call-reusable-build-test
     runs-on: windows-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Write SNK file
         shell: pwsh
@@ -22,10 +26,11 @@ jobs:
           SNK_BASE64: ${{ secrets.SNK_BASE64 }}
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
-            6.0.407
+            3.1.x
+            6.0.x
             8.0.x
 
       - name: Calculate Package Version

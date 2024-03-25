@@ -1,29 +1,31 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <TargetFrameworks>netcoreapp3.1;net6.0;net8.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0"/>
-    <PackageReference Include="NUnit" Version="3.13.3"/>
-    <PackageReference Include="NUnit3TestAdapter" Version="4.2.1"/>
-    <PackageReference Include="NUnit.Analyzers" Version="3.3.0"/>
-    <PackageReference Include="coverlet.collector" Version="3.1.2"/>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
+    <PackageReference Include="NUnit" Version="3.13.3" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
+    <PackageReference Include="NUnit.Analyzers" Version="3.3.0" />
+    <PackageReference Include="coverlet.collector" Version="3.1.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SharpToken\SharpToken.csproj"/>
+    <ProjectReference Include="..\SharpToken\SharpToken.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="data\TestPlans.txt"/>
+    <None Remove="data\TestPlans.txt" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="data\TestPlans.txt"/>
+    <EmbeddedResource Include="data\TestPlans.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="obj" />
   </ItemGroup>
 </Project>
