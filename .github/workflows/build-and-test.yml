@@ -7,7 +7,7 @@ on:
 
 jobs:
   call-reusable-build-test:
-    uses: reusable_build_test.yml
+    uses: reusable_build_test.yml@${{ github.ref }}
 
   build-test:
     runs-on: windows-latest
