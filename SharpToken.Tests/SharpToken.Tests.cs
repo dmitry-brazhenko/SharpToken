@@ -80,7 +80,7 @@ public class Tests
         const int fimMiddle = 100259;
         const int fimSuffix = 100260;
         var allowedSpecialTokens = new HashSet<string> { "all" };
-        
+
         var encoding = GptEncoding.GetEncoding(encodingName);
         var encoded = encoding.Encode(inputText, allowedSpecialTokens);
         var expectedEncoded = new List<int> { fimPrefix, 385, 1864, 27439, fimSuffix, 11, 36240, 57781, 31160, fimMiddle, 67, 795, 2503, 28311 };
