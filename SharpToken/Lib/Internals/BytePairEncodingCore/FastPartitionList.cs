@@ -77,7 +77,7 @@ namespace SharpToken
                         var span = _index.AsSpan(startIndex..(startIndex + size));
                         var vector = new Vector<int>(span);
                         vector.StoreUnsafe(ref _index[i]);
-                        i += 7;
+                        i += size - 1;
                     }
                     else
                     {
