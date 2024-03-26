@@ -60,14 +60,14 @@ namespace SharpToken.Benchmark
         [Benchmark]
         public int CountTokens_SmallText()
         {
-            var count = _encoding.TokenCount(_smallText);
+            var count = _encoding.CountTokens(_smallText);
             return count;
         }
 
         [Benchmark]
         public int CountTokens_LargeText()
         {
-            var count = _encoding.TokenCount(_largeText);
+            var count = _encoding.CountTokens(_largeText);
             return count;
         }
     }

@@ -47,7 +47,7 @@ namespace SharpToken.Benchmark
             for (var i = 0; i < len; i++)
             {
                 var line = _lines[i];
-                var count = _encoding.TokenCount(line);
+                var count = _encoding.CountTokens(line);
                 sum += count;
             }
 
@@ -58,7 +58,7 @@ namespace SharpToken.Benchmark
         [Benchmark]
         public int CountTokens_LargeInput()
         {
-            var count = _encoding.TokenCount(_largeText);
+            var count = _encoding.CountTokens(_largeText);
             return count;
         }
     }

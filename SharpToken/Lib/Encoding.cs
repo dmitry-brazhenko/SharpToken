@@ -73,7 +73,7 @@ namespace SharpToken
             return GetEncoding(encodingName);
         }
 
-        public int TokenCount(
+        public int CountTokens(
 #if NET8_0_OR_GREATER
             ReadOnlySpan<char> lineToEncode,
 #else

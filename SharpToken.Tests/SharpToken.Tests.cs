@@ -33,6 +33,20 @@ public class Tests
     }
 
     [Test]
+    [TestCaseSource(nameof(TestData))]
+    public void TestTokensLength(Tuple<string, string, List<int>> resource)
+    {
+        var (encodingName, textToEncode, expectedEncoded) = resource;
+
+        var encoding = GptEncoding.GetEncoding(encodingName);
+        var tokenLength = encoding.CountTokens(textToEncode);
+        Assert.Multiple(() =>
+        {
+            Assert.That(tokenLength, Is.EqualTo(expectedEncoded.Count));
+        });
+    }
+
+    [Test]
     public async Task TestEncodingAndDecodingInParallel()
     {
         var tasks = TestData.Select(_ => Task.Run(() =>

@@ -64,7 +64,7 @@ SharpToken also provides a high performance count method.
 It is usefull to check prompt size before sending it to a LLM or to use it in a TextSplitter/Chunker for RAG.
 
 ```csharp
-var count = encoding.TokenCount("Hello, world!"); // Output: 4
+var count = encoding.CountTokens("Hello, world!"); // Output: 4
 ```
 
 ## Supported Models
