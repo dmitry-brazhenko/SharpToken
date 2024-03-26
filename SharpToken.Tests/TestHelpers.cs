@@ -28,6 +28,7 @@ namespace SharpToken.Tests
                     var encodedStr = reader.ReadLine()!.Substring("Encoded: ".Length);
 
                     var encoded = Regex.Matches(encodedStr, @"\d+")
+                        .Cast<Match>()
                         .Select(m => int.Parse(m.Value, CultureInfo.InvariantCulture))
                         .ToList();
 

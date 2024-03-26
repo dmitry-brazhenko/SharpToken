@@ -53,9 +53,9 @@ namespace SharpToken
 
         private static readonly Dictionary<string, string> ModelPrefixToEncodingMapping = new Dictionary<string, string>
         {
-            {"gpt-4-", "cl100k_base" },  // e.g., gpt-4-0314, etc., plus gpt-4-32k
-            {"gpt-3.5-turbo-", "cl100k_base" },  // e.g, gpt-3.5-turbo-0301, -0401, etc.
-            {"gpt-35-turbo", "cl100k_base" },  // Azure deployment name
+            { "gpt-4-", "cl100k_base" }, // e.g., gpt-4-0314, etc., plus gpt-4-32k
+            { "gpt-3.5-turbo-", "cl100k_base" }, // e.g, gpt-3.5-turbo-0301, -0401, etc.
+            { "gpt-35-turbo", "cl100k_base" }, // Azure deployment name
         };
 
         public static string GetEncodingNameForModel(string modelName)

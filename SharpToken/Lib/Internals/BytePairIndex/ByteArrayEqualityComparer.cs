@@ -1,14 +1,14 @@
+#if !NET8_0_OR_GREATER
 using System;
 using System.Collections.Generic;
+using System.Numerics;
+
 
 namespace SharpToken
 {
-    public class ByteArrayEqualityComparer : IEqualityComparer<byte[]>
+    internal sealed class ByteArrayEqualityComparer : IEqualityComparer<byte[]>
     {
-        // Constants used in the GetHashCode method.
-        private const int SampleSizeDivider = 16;
-        private const int InitialHashValue = 17;
-        private const int HashMultiplier = 31;
+        public static ByteArrayEqualityComparer Instance = new ByteArrayEqualityComparer();
 
         public bool Equals(byte[] x, byte[] y)
         {
@@ -33,7 +33,24 @@ namespace SharpToken
             }
 
             // Compare the elements of the arrays for equality.
-            for (var i = 0; i < length; i++)
+            var i = 0;
+#if NET
+            // use multibyte instructions
+            var count = Vector<byte>.Count;
+            while (i + count < length)
+            {
+                var left = new Vector<byte>(x.AsSpan()[i..(i + count)]);
+                var right = new Vector<byte>(y.AsSpan()[i..(i + count)]);
+
+                if (!Vector.EqualsAll(left, right))
+                {
+                    return false;
+                }
+
+                i += count;
+            }
+#endif
+            for (; i < length; i++)
             {
                 if (x[i] != y[i])
                 {
@@ -44,21 +61,17 @@ namespace SharpToken
             return true;
         }
 
-        public int GetHashCode(byte[] obj)
+        public int GetHashCode(byte[] bytes)
         {
-            // Initialize the hash code.
-            var hash = InitialHashValue;
-
-            // Use a sampling strategy for very large byte arrays to save processing time.
-            var step = Math.Max(1, obj.Length / SampleSizeDivider);
-
-            // Compute the hash code from the sampled elements of the byte array.
-            for (var i = 0; i < obj.Length; i += step)
+            var hash = 17;
+            for (var i = 0; i < bytes.Length; i++)
             {
-                hash = hash * HashMultiplier + obj[i];
+                hash = hash * 31 + bytes[i];
             }
 
             return hash;
         }
     }
 }
+
+#endif
