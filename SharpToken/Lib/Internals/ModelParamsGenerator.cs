@@ -39,7 +39,7 @@ namespace SharpToken
         {
             return Cache.GetOrAdd(encodingName.ToLower(), key =>
             {
-                switch (encodingName.ToLower())
+                switch (key)
                 {
                     case "r50k_base":
                         return R50KBase();
