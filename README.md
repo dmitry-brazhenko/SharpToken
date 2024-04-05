@@ -14,6 +14,9 @@ SharpToken is a C# library that serves as a port of the Python [tiktoken](https:
 It provides functionality for encoding and decoding tokens using GPT-based encodings. This library is built for .NET 6, .NET 8
 and .NET Standard 2.0, making it compatible with a wide range of frameworks.
 
+> [!Important]
+> The functionality in `SharpToken` has been added to [`Microsoft.ML.Tokenizers`](https://www.nuget.org/packages/Microsoft.ML.Tokenizers). `Microsoft.ML.Tokenizers` is a tokenizer library being developed by the .NET team and going forward, the central place for tokenizer development in .NET. By using `Microsoft.ML.Tokenizers`, you should see improved performance over existing tokenizer library implementations, including `SharpToken`. A stable release of `Microsoft.ML.Tokenizers` is expected alongside the .NET 9.0 release (November 2024). Instructions for migration can be found at https://github.com/dotnet/machinelearning/blob/main/docs/code/microsoft-ml-tokenizers-migration-guide.md.
+
 ## Installation
 
 To install SharpToken, use the NuGet package manager:
@@ -200,6 +203,7 @@ public class CompareBenchmark
     private GptEncoding _sharpToken;
     private TikToken _tikToken;
     private ITokenizer _tokenizer;
+    private Tokenizer _mlTokenizer;
     private string _kLongText;
 
     [GlobalSetup]
@@ -252,35 +256,52 @@ public class CompareBenchmark
 
         return sum;
     }
+    
+    [Benchmark]
+    public int MLTokenizers()
+    {
+        var sum = 0;
+        for (var i = 0; i < 10000; i++)
+        {
+            var encoded = _mlTokenizer.EncodeToIds(_kLongText);
+            var decoded = _mlTokenizer.Decode(encoded);
+            sum += decoded.Length;
+        }
+
+        return sum;
+    }
 }
 ```
 
 </details>
 
 ```
-BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3296/23H2/2023Update/SunValley3)
-AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
-.NET SDK 8.0.200
-  [Host]               : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
-  .NET 6.0             : .NET 6.0.16 (6.0.1623.17311), X64 RyuJIT AVX2
-  .NET 8.0             : .NET 8.0.2 (8.0.224.6711), X64 RyuJIT AVX2
+BenchmarkDotNet v0.13.9+228a464e8be6c580ad9408e98f18813f6407fb5a, Windows 11 (10.0.22631.3296)
+11th Gen Intel Core i9-11950H 2.60GHz, 1 CPU, 16 logical and 8 physical cores
+.NET SDK 9.0.100-preview.2.24157.14
+  [Host]               : .NET 8.0.3 (8.0.324.11423), X64 RyuJIT AVX2
+  .NET 6.0             : .NET 6.0.28 (6.0.2824.12007), X64 RyuJIT AVX2
+  .NET 8.0             : .NET 8.0.3 (8.0.324.11423), X64 RyuJIT AVX2
   .NET Framework 4.7.1 : .NET Framework 4.8.1 (4.8.9181.0), X64 RyuJIT VectorSize=256
 ```
 
-| Method         | Job                  | Runtime              | Mean     | Error    | StdDev   | Gen0       | Gen1      | Allocated |
-|--------------- |--------------------- |--------------------- |---------:|---------:|---------:|-----------:|----------:|----------:|
-| **SharpToken** | .NET 8.0             | .NET 8.0             | 100.4 ms |  1.95 ms |  1.91 ms |  2000.0000 |         - |  22.13 MB |
-| **SharpToken** | .NET 6.0             | .NET 6.0             | 169.9 ms |  2.42 ms |  2.15 ms | 24333.3333 | 1000.0000 |  196.3 MB |
-| **SharpToken** | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 455.3 ms |  8.34 ms |  6.97 ms | 34000.0000 | 1000.0000 | 204.39 MB |
-|                |                      |                      |          |          |          |            |           |           |
-| *TiktokenSharp*| .NET 8.0             | .NET 8.0             | 211.4 ms |  1.83 ms |  1.53 ms | 42000.0000 | 1000.0000 | 338.98 MB |
-| *TiktokenSharp*| .NET 6.0             | .NET 6.0             | 258.6 ms |  5.09 ms |  6.25 ms | 39000.0000 | 1000.0000 | 313.26 MB |
-| *TiktokenSharp*| .NET Framework 4.7.1 | .NET Framework 4.7.1 | 638.3 ms | 12.47 ms | 16.21 ms | 63000.0000 | 1000.0000 | 378.31 MB |
-|                |                      |                      |          |          |          |            |           |           |
-| *TokenizerLib* | .NET 8.0             | .NET 8.0             | 124.4 ms |  1.81 ms |  1.60 ms | 27250.0000 | 1000.0000 | 217.82 MB |
-| *TokenizerLib* | .NET 6.0             | .NET 6.0             | 165.5 ms |  1.38 ms |  1.16 ms | 27000.0000 | 1000.0000 | 217.82 MB |
-| *TokenizerLib* | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 499.7 ms |  9.81 ms | 14.07 ms | 40000.0000 | 1000.0000 | 243.79 MB |
-
+| Method            | Job                  | Runtime              | Mean      | Error    | StdDev    | Median    | Gen0       | Gen1      | Allocated |
+|------------------ |--------------------- |--------------------- |----------:|---------:|----------:|----------:|-----------:|----------:|----------:|
+| **MLTokenizers**  | .NET 8.0             | .NET 8.0             |  60.55 ms | 1.143 ms |  1.123 ms |  60.45 ms |  1000.0000 |         - |  13.12 MB |
+| **MLTokenizers**  | .NET 6.0             | .NET 6.0             |  95.75 ms | 1.374 ms |  1.147 ms |  95.54 ms | 10500.0000 |         - | 126.19 MB |
+| **MLTokenizers**  | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 291.77 ms | 5.811 ms | 11.195 ms | 291.64 ms | 21000.0000 |         - | 127.33 MB |
+|                   |                      |                      |           |          |           |           |            |           |           |
+| *SharpToken*      | .NET 8.0             | .NET 8.0             |  87.78 ms | 1.700 ms |  1.590 ms |  87.34 ms |  1000.0000 |         - |  22.13 MB |
+| *SharpToken*      | .NET 6.0             | .NET 6.0             | 128.84 ms | 1.718 ms |  1.607 ms | 128.17 ms | 16250.0000 |  500.0000 | 196.31 MB |
+| *SharpToken*      | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 356.21 ms | 6.843 ms | 10.854 ms | 355.09 ms | 34000.0000 | 1000.0000 | 204.39 MB |
+|                   |                      |                      |           |          |           |           |            |           |           |
+| *TokenizerLib*    | .NET 8.0             | .NET 8.0             | 109.26 ms | 2.082 ms |  4.482 ms | 107.90 ms | 18200.0000 |  600.0000 | 217.82 MB |
+| *TokenizerLib*    | .NET 6.0             | .NET 6.0             | 126.16 ms | 2.959 ms |  8.630 ms | 122.34 ms | 18000.0000 |  500.0000 | 217.82 MB |
+| *TokenizerLib*    | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 374.71 ms | 7.374 ms | 16.794 ms | 370.12 ms | 40000.0000 | 1000.0000 | 243.79 MB |
+|                   |                      |                      |           |          |           |           |            |           |           |
+| *TiktokenSharp*   | .NET 8.0             | .NET 8.0             | 177.34 ms | 3.506 ms |  8.797 ms | 174.98 ms | 28000.0000 | 1000.0000 | 338.98 MB |
+| *TiktokenSharp*   | .NET 6.0             | .NET 6.0             | 196.17 ms | 3.912 ms |  8.422 ms | 195.52 ms | 26000.0000 |  666.6667 | 313.26 MB |
+| *TiktokenSharp*   | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 488.22 ms | 9.696 ms | 15.931 ms | 487.17 ms | 63000.0000 | 1000.0000 | 378.31 MB |
 
 ## Performance
 
