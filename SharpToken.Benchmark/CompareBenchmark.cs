@@ -3,7 +3,7 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
 using TiktokenSharp;
 using Microsoft.DeepDev;
-
+using Microsoft.ML.Tokenizers;
 
 namespace SharpToken.Benchmark
 {
@@ -17,6 +17,7 @@ namespace SharpToken.Benchmark
         private GptEncoding _sharpToken;
         private TikToken _tikToken;
         private ITokenizer _tokenizer;
+        private Tokenizer _mlTokenizer;
         private string _kLongText;
 
         [GlobalSetup]
@@ -25,6 +26,7 @@ namespace SharpToken.Benchmark
             _sharpToken = GptEncoding.GetEncoding("cl100k_base");
             _tikToken = await TikToken.GetEncodingAsync("cl100k_base").ConfigureAwait(false);
             _tokenizer = await TokenizerBuilder.CreateByModelNameAsync("gpt-4").ConfigureAwait(false);
+            _mlTokenizer = Tokenizer.CreateTiktokenForModel("gpt-4");
             _kLongText = "King Lear, one of Shakespeare's darkest and most savage plays, tells the story of the foolish and Job-like Lear, who divides his kingdom, as he does his affections, according to vanity and whim. Lear’s failure as a father engulfs himself and his world in turmoil and tragedy.";
         }
 
@@ -64,6 +66,20 @@ namespace SharpToken.Benchmark
             {
                 var encoded = _tokenizer.Encode(_kLongText);
                 var decoded = _tokenizer.Decode(encoded.ToArray());
+                sum += decoded.Length;
+            }
+
+            return sum;
+        }
+
+        [Benchmark]
+        public int MLTokenizers()
+        {
+            var sum = 0;
+            for (var i = 0; i < 10000; i++)
+            {
+                var encoded = _mlTokenizer.EncodeToIds(_kLongText);
+                var decoded = _mlTokenizer.Decode(encoded);
                 sum += decoded.Length;
             }
 
