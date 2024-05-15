@@ -135,7 +135,7 @@ namespace SharpToken
 
             return new ModelParams
             (
-                tokenizerRegex: ModelParamsGeneratorRegex.RegexCl100KBase(),
+                tokenizerRegex: ModelParamsGeneratorRegex.RegexO200KBase(),
                 mergeableRanks: mergeableRanks,
                 specialTokens: specialTokens
             );
