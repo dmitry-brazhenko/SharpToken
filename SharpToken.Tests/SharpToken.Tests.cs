@@ -70,6 +70,7 @@ public class Tests
         }
     }
 
+
     [Test]
     public void TestEncodingWithCustomAllowedSet()
     {
