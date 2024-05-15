@@ -1,3 +1,4 @@
+using System.Net.Http;
 using System.Text;
 using NUnit.Framework;
 
@@ -68,6 +69,7 @@ public class Tests
             });
         }
     }
+
 
     [Test]
     public void TestEncodingWithCustomAllowedSet()
