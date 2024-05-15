@@ -33,11 +33,13 @@
     <None Remove="Lib\" />
     <None Remove="data\" />
     <None Remove="data\cl100k_base.tiktoken" />
+    <None Remove="data\o200k_base.tiktoken" />
     <None Remove="data\p50k_base.tiktoken" />
     <None Remove="data\r50k_base.tiktoken" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="data\cl100k_base.tiktoken" />
+    <EmbeddedResource Include="data\o200k_base.tiktoken" />
     <EmbeddedResource Include="data\p50k_base.tiktoken" />
     <EmbeddedResource Include="data\r50k_base.tiktoken" />
   </ItemGroup>

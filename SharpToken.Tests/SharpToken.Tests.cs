@@ -1,4 +1,3 @@
-using System.Net.Http;
 using System.Text;
 using NUnit.Framework;
 
@@ -6,7 +5,7 @@ namespace SharpToken.Tests;
 
 public class Tests
 {
-    private static readonly List<string> ModelsList = new() { "p50k_base", "r50k_base", "cl100k_base" };
+    private static readonly List<string> ModelsList = new() { "p50k_base", "r50k_base", "cl100k_base", "o200k_base" };
 
     private static readonly List<Tuple<string, string, List<int>>> TestData =
         TestHelpers.ReadTestPlans("SharpToken.Tests.data.TestPlans.txt");
@@ -69,7 +68,6 @@ public class Tests
             });
         }
     }
-
 
     [Test]
     public void TestEncodingWithCustomAllowedSet()
