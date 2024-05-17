@@ -78,6 +78,7 @@ SharpToken currently supports the following models:
 * `p50k_base`
 * `p50k_edit`
 * `cl100k_base`
+* `o200k_base`
 
 You can use any of these models when creating an instance of GptEncoding:
 
@@ -86,6 +87,7 @@ var r50kBaseEncoding = GptEncoding.GetEncoding("r50k_base");
 var p50kBaseEncoding = GptEncoding.GetEncoding("p50k_base");
 var p50kEditEncoding = GptEncoding.GetEncoding("p50k_edit");
 var cl100kBaseEncoding = GptEncoding.GetEncoding("cl100k_base");
+var o200kBaseEncoding = GptEncoding.GetEncoding("o200k_base");
 ```
 
 ### Model Prefix Matching
@@ -96,11 +98,13 @@ Here are the current supported prefixes and their corresponding encodings:
 
 | Model Prefix        | Encoding   |
 |---------------------|------------|
+| `gpt-4o`            | `o200k_base` |
 | `gpt-4-`            | `cl100k_base` |
 | `gpt-3.5-turbo-`    | `cl100k_base` |
 | `gpt-35-turbo`      | `cl100k_base` |
 
 Examples of model names that fall under these prefixes include:
+- For the prefix `gpt-4o`: `gpt-4o`, `gpt-4o-2024-05-13`, etc.
 - For the prefix `gpt-4-`: `gpt-4-0314`, `gpt-4-32k`, etc.
 - For the prefix `gpt-3.5-turbo-`: `gpt-3.5-turbo-0301`, `gpt-3.5-turbo-0401`, etc.
 - For the Azure deployment name `gpt-35-turbo`.
@@ -256,7 +260,7 @@ public class CompareBenchmark
 
         return sum;
     }
-    
+
     [Benchmark]
     public int MLTokenizers()
     {

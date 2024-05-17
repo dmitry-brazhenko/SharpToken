@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
+        os: [windows-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
@@ -21,6 +21,10 @@ jobs:
             3.1.x
             6.0.x
             8.0.x
+          architecture: x64
+
+      - name: Log .NET SDK versions
+        run: dotnet --info
 
       - name: Restore dependencies
         run: dotnet restore

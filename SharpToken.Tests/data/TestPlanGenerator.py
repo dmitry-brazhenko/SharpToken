@@ -35,6 +35,7 @@ if __name__ == "__main__":
         tiktoken.get_encoding("p50k_base"),
         tiktoken.get_encoding("p50k_edit"),
         tiktoken.get_encoding("cl100k_base"),
+        tiktoken.get_encoding("o200k_base"),
     ]
 
     test_samples = read_test_samples(samples_filename)

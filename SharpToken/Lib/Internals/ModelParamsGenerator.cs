@@ -53,6 +53,9 @@ namespace SharpToken
                     case "cl100k_base":
                         return Cl100KBase();
 
+                    case "o200k_base":
+                        return O200KBase();
+
                     default:
                         throw new ArgumentException($"Unknown encoding name: {encodingName}");
                 }
@@ -119,6 +122,24 @@ namespace SharpToken
                 specialTokens: specialTokens
             );
         }
+
+        private static ModelParams O200KBase()
+        {
+            var mergeableRanks = EmbeddedResourceReader.LoadTokenBytePairEncoding("SharpToken.data.o200k_base.tiktoken");
+
+            var specialTokens = new Dictionary<string, int>
+            {
+                { EndOfText, 199999 },
+                { EndOfPrompt, 200018 }
+            };
+
+            return new ModelParams
+            (
+                tokenizerRegex: ModelParamsGeneratorRegex.RegexO200KBase(),
+                mergeableRanks: mergeableRanks,
+                specialTokens: specialTokens
+            );
+        }
     }
 
     internal sealed partial class ModelParamsGeneratorRegex
@@ -129,10 +150,15 @@ namespace SharpToken
 
         [GeneratedRegex(@"(?i:'s|'t|'re|'ve|'m|'ll|'d)|[^\r\n\p{L}\p{N}]?\p{L}+|\p{N}{1,3}| ?[^\s\p{L}\p{N}]+[\r\n]*|\s*[\r\n]+|\s+(?!\S)|\s+")]
         public static partial Regex RegexCl100KBase();
+
+        [GeneratedRegex(@"[^\r\n\p{L}\p{N}]?[\p{Lu}\p{Lt}\p{Lm}\p{Lo}\p{M}]*[\p{Ll}\p{Lm}\p{Lo}\p{M}]+(?i:'s|'t|'re|'ve|'m|'ll|'d)?|[^\r\n\p{L}\p{N}]?[\p{Lu}\p{Lt}\p{Lm}\p{Lo}\p{M}]+[\p{Ll}\p{Lm}\p{Lo}\p{M}]*(?i:'s|'t|'re|'ve|'m|'ll|'d)?|\p{N}{1,3}| ?[^\s\p{L}\p{N}]+[\r\n/]*|\s*[\r\n]+|\s+(?!\S)|\s+")]
+        public static partial Regex RegexO200KBase();
 #else
         public static Regex Regex50KBase() => new Regex(@"'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+", RegexOptions.Compiled);
 
         public static Regex RegexCl100KBase() => new Regex(@"(?i:'s|'t|'re|'ve|'m|'ll|'d)|[^\r\n\p{L}\p{N}]?\p{L}+|\p{N}{1,3}| ?[^\s\p{L}\p{N}]+[\r\n]*|\s*[\r\n]+|\s+(?!\S)|\s+", RegexOptions.Compiled);
+
+        public static Regex RegexO200KBase() => new Regex(@"[^\r\n\p{L}\p{N}]?[\p{Lu}\p{Lt}\p{Lm}\p{Lo}\p{M}]*[\p{Ll}\p{Lm}\p{Lo}\p{M}]+(?i:'s|'t|'re|'ve|'m|'ll|'d)?|[^\r\n\p{L}\p{N}]?[\p{Lu}\p{Lt}\p{Lm}\p{Lo}\p{M}]+[\p{Ll}\p{Lm}\p{Lo}\p{M}]*(?i:'s|'t|'re|'ve|'m|'ll|'d)?|\p{N}{1,3}| ?[^\s\p{L}\p{N}]+[\r\n/]*|\s*[\r\n]+|\s+(?!\S)|\s+", RegexOptions.Compiled);
 #endif
     }
 }
