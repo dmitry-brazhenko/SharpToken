@@ -151,9 +151,8 @@ namespace SharpToken
 
             var specialTokens = new Dictionary<string, int>
             {
-                // Base O200K special tokens (from o200k_base)
+                // Base O200K special tokens (from o200k_base) - EndOfPrompt is omitted as it gets replaced by reserved_200018
                 { EndOfText, 199999 },
-                { EndOfPrompt, 200018 },
                 
                 // Additional O200K Harmony special tokens
                 { "<|startoftext|>", 199998 },
