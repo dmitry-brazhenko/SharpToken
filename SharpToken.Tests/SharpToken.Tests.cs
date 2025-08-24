@@ -294,11 +294,11 @@ public class Tests
             "p50k_edit" => new HashSet<string> { "<|endoftext|>", "<|fim_prefix|>", "<|fim_middle|>", "<|fim_suffix|>" },
             "cl100k_base" => new HashSet<string> { "<|endoftext|>", "<|fim_prefix|>", "<|fim_middle|>", "<|fim_suffix|>", "<|endofprompt|>" },
             "o200k_base" => new HashSet<string> { "<|endoftext|>", "<|endofprompt|>" },
-            "o200k_harmony" => new HashSet<string> 
+            "o200k_harmony" => new HashSet<string>(new HashSet<string> 
             { 
                 "<|endoftext|>", "<|endofprompt|>", "<|startoftext|>", "<|return|>", "<|constrain|>", 
                 "<|channel|>", "<|start|>", "<|end|>", "<|message|>", "<|call|>"
-            }.Union(Enumerable.Range(200000, 1088).Select(i => $"<|reserved_{i}|>")).ToHashSet(),
+            }.Union(Enumerable.Range(200000, 1088).Select(i => $"<|reserved_{i}|>"))),
             _ => new HashSet<string>()
         };
     }
