@@ -56,6 +56,9 @@ namespace SharpToken
                     case "o200k_base":
                         return O200KBase();
 
+                    case "o200k_harmony":
+                        return O200KHarmony();
+
                     default:
                         throw new ArgumentException($"Unknown encoding name: {encodingName}");
                 }
@@ -132,6 +135,48 @@ namespace SharpToken
                 { EndOfText, 199999 },
                 { EndOfPrompt, 200018 }
             };
+
+            return new ModelParams
+            (
+                tokenizerRegex: ModelParamsGeneratorRegex.RegexO200KBase(),
+                mergeableRanks: mergeableRanks,
+                specialTokens: specialTokens
+            );
+        }
+
+        private static ModelParams O200KHarmony()
+        {
+            // O200K Harmony reuses the same mergeable ranks as O200K Base but has extended special tokens
+            var mergeableRanks = EmbeddedResourceReader.LoadTokenBytePairEncoding("SharpToken.data.o200k_base.tiktoken");
+
+            var specialTokens = new Dictionary<string, int>
+            {
+                // Base O200K special tokens (from o200k_base)
+                { EndOfText, 199999 },
+                { EndOfPrompt, 200018 },
+                
+                // Additional O200K Harmony special tokens
+                { "<|startoftext|>", 199998 },
+                { "<|reserved_200000|>", 200000 },
+                { "<|reserved_200001|>", 200001 },
+                { "<|return|>", 200002 },
+                { "<|constrain|>", 200003 },
+                { "<|reserved_200004|>", 200004 },
+                { "<|channel|>", 200005 },
+                { "<|start|>", 200006 },
+                { "<|end|>", 200007 },
+                { "<|message|>", 200008 },
+                { "<|reserved_200009|>", 200009 },
+                { "<|reserved_200010|>", 200010 },
+                { "<|reserved_200011|>", 200011 },
+                { "<|call|>", 200012 }
+            };
+
+            // Add reserved tokens from 200013 to 201087 (this will create <|reserved_200018|> with same ID as EndOfPrompt)
+            for (int i = 200013; i < 201088; i++)
+            {
+                specialTokens[$"<|reserved_{i}|>"] = i;
+            }
 
             return new ModelParams
             (

@@ -8,8 +8,6 @@
 [![Contributors](https://img.shields.io/github/contributors/dmitry-brazhenko/SharpToken.svg)](https://github.com/dmitry-brazhenko/SharpToken/graphs/contributors)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-
-
 SharpToken is a C# library that serves as a port of the Python [tiktoken](https://github.com/openai/tiktoken) library.
 It provides functionality for encoding and decoding tokens using GPT-based encodings. This library is built for .NET 6, .NET 8
 and .NET Standard 2.0, making it compatible with a wide range of frameworks.
@@ -74,11 +72,12 @@ var count = encoding.CountTokens("Hello, world!"); // Output: 4
 
 SharpToken currently supports the following models:
 
-* `r50k_base`
-* `p50k_base`
-* `p50k_edit`
-* `cl100k_base`
-* `o200k_base`
+- `r50k_base`
+- `p50k_base`
+- `p50k_edit`
+- `cl100k_base`
+- `o200k_base`
+- `o200k_harmony`
 
 You can use any of these models when creating an instance of GptEncoding:
 
@@ -88,6 +87,7 @@ var p50kBaseEncoding = GptEncoding.GetEncoding("p50k_base");
 var p50kEditEncoding = GptEncoding.GetEncoding("p50k_edit");
 var cl100kBaseEncoding = GptEncoding.GetEncoding("cl100k_base");
 var o200kBaseEncoding = GptEncoding.GetEncoding("o200k_base");
+var o200kHarmonyEncoding = GptEncoding.GetEncoding("o200k_harmony");
 ```
 
 ### Model Prefix Matching
@@ -96,14 +96,17 @@ Apart from specifying direct model names, SharpToken also provides functionality
 
 Here are the current supported prefixes and their corresponding encodings:
 
-| Model Prefix        | Encoding   |
-|---------------------|------------|
-| `gpt-4o`            | `o200k_base` |
-| `gpt-4-`            | `cl100k_base` |
-| `gpt-3.5-turbo-`    | `cl100k_base` |
-| `gpt-35-turbo`      | `cl100k_base` |
+| Model Prefix     | Encoding      |
+| ---------------- | ------------- |
+| `gpt-5`          | `o200k_base`  |
+| `gpt-4o`         | `o200k_base`  |
+| `gpt-4-`         | `cl100k_base` |
+| `gpt-3.5-turbo-` | `cl100k_base` |
+| `gpt-35-turbo`   | `cl100k_base` |
 
 Examples of model names that fall under these prefixes include:
+
+- For the prefix `gpt-5`: `gpt-5`, `gpt-5-mini`, `gpt-5-nano`, `gpt-5-pro`, `gpt-5-thinking`, `gpt-5-2024-08-07`, `gpt-5-chat-latest`, etc.
 - For the prefix `gpt-4o`: `gpt-4o`, `gpt-4o-2024-05-13`, etc.
 - For the prefix `gpt-4-`: `gpt-4-0314`, `gpt-4-32k`, etc.
 - For the prefix `gpt-3.5-turbo-`: `gpt-3.5-turbo-0301`, `gpt-3.5-turbo-0401`, etc.
@@ -116,9 +119,6 @@ string encodingName = Model.GetEncodingNameForModel("gpt-4-0314");  // This will
 ```
 
 If the provided model name doesn't match any direct model names or prefixes, the method will return `null`.
-
-
-
 
 ## Understanding Encoded Values
 
@@ -289,23 +289,23 @@ BenchmarkDotNet v0.13.9+228a464e8be6c580ad9408e98f18813f6407fb5a, Windows 11 (10
   .NET Framework 4.7.1 : .NET Framework 4.8.1 (4.8.9181.0), X64 RyuJIT VectorSize=256
 ```
 
-| Method            | Job                  | Runtime              | Mean      | Error    | StdDev    | Median    | Gen0       | Gen1      | Allocated |
-|------------------ |--------------------- |--------------------- |----------:|---------:|----------:|----------:|-----------:|----------:|----------:|
-| **MLTokenizers**  | .NET 8.0             | .NET 8.0             |  60.55 ms | 1.143 ms |  1.123 ms |  60.45 ms |  1000.0000 |         - |  13.12 MB |
-| **MLTokenizers**  | .NET 6.0             | .NET 6.0             |  95.75 ms | 1.374 ms |  1.147 ms |  95.54 ms | 10500.0000 |         - | 126.19 MB |
-| **MLTokenizers**  | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 291.77 ms | 5.811 ms | 11.195 ms | 291.64 ms | 21000.0000 |         - | 127.33 MB |
-|                   |                      |                      |           |          |           |           |            |           |           |
-| *SharpToken*      | .NET 8.0             | .NET 8.0             |  87.78 ms | 1.700 ms |  1.590 ms |  87.34 ms |  1000.0000 |         - |  22.13 MB |
-| *SharpToken*      | .NET 6.0             | .NET 6.0             | 128.84 ms | 1.718 ms |  1.607 ms | 128.17 ms | 16250.0000 |  500.0000 | 196.31 MB |
-| *SharpToken*      | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 356.21 ms | 6.843 ms | 10.854 ms | 355.09 ms | 34000.0000 | 1000.0000 | 204.39 MB |
-|                   |                      |                      |           |          |           |           |            |           |           |
-| *TokenizerLib*    | .NET 8.0             | .NET 8.0             | 109.26 ms | 2.082 ms |  4.482 ms | 107.90 ms | 18200.0000 |  600.0000 | 217.82 MB |
-| *TokenizerLib*    | .NET 6.0             | .NET 6.0             | 126.16 ms | 2.959 ms |  8.630 ms | 122.34 ms | 18000.0000 |  500.0000 | 217.82 MB |
-| *TokenizerLib*    | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 374.71 ms | 7.374 ms | 16.794 ms | 370.12 ms | 40000.0000 | 1000.0000 | 243.79 MB |
-|                   |                      |                      |           |          |           |           |            |           |           |
-| *TiktokenSharp*   | .NET 8.0             | .NET 8.0             | 177.34 ms | 3.506 ms |  8.797 ms | 174.98 ms | 28000.0000 | 1000.0000 | 338.98 MB |
-| *TiktokenSharp*   | .NET 6.0             | .NET 6.0             | 196.17 ms | 3.912 ms |  8.422 ms | 195.52 ms | 26000.0000 |  666.6667 | 313.26 MB |
-| *TiktokenSharp*   | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 488.22 ms | 9.696 ms | 15.931 ms | 487.17 ms | 63000.0000 | 1000.0000 | 378.31 MB |
+| Method           | Job                  | Runtime              |      Mean |    Error |    StdDev |    Median |       Gen0 |      Gen1 | Allocated |
+| ---------------- | -------------------- | -------------------- | --------: | -------: | --------: | --------: | ---------: | --------: | --------: |
+| **MLTokenizers** | .NET 8.0             | .NET 8.0             |  60.55 ms | 1.143 ms |  1.123 ms |  60.45 ms |  1000.0000 |         - |  13.12 MB |
+| **MLTokenizers** | .NET 6.0             | .NET 6.0             |  95.75 ms | 1.374 ms |  1.147 ms |  95.54 ms | 10500.0000 |         - | 126.19 MB |
+| **MLTokenizers** | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 291.77 ms | 5.811 ms | 11.195 ms | 291.64 ms | 21000.0000 |         - | 127.33 MB |
+|                  |                      |                      |           |          |           |           |            |           |           |
+| _SharpToken_     | .NET 8.0             | .NET 8.0             |  87.78 ms | 1.700 ms |  1.590 ms |  87.34 ms |  1000.0000 |         - |  22.13 MB |
+| _SharpToken_     | .NET 6.0             | .NET 6.0             | 128.84 ms | 1.718 ms |  1.607 ms | 128.17 ms | 16250.0000 |  500.0000 | 196.31 MB |
+| _SharpToken_     | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 356.21 ms | 6.843 ms | 10.854 ms | 355.09 ms | 34000.0000 | 1000.0000 | 204.39 MB |
+|                  |                      |                      |           |          |           |           |            |           |           |
+| _TokenizerLib_   | .NET 8.0             | .NET 8.0             | 109.26 ms | 2.082 ms |  4.482 ms | 107.90 ms | 18200.0000 |  600.0000 | 217.82 MB |
+| _TokenizerLib_   | .NET 6.0             | .NET 6.0             | 126.16 ms | 2.959 ms |  8.630 ms | 122.34 ms | 18000.0000 |  500.0000 | 217.82 MB |
+| _TokenizerLib_   | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 374.71 ms | 7.374 ms | 16.794 ms | 370.12 ms | 40000.0000 | 1000.0000 | 243.79 MB |
+|                  |                      |                      |           |          |           |           |            |           |           |
+| _TiktokenSharp_  | .NET 8.0             | .NET 8.0             | 177.34 ms | 3.506 ms |  8.797 ms | 174.98 ms | 28000.0000 | 1000.0000 | 338.98 MB |
+| _TiktokenSharp_  | .NET 6.0             | .NET 6.0             | 196.17 ms | 3.912 ms |  8.422 ms | 195.52 ms | 26000.0000 |  666.6667 | 313.26 MB |
+| _TiktokenSharp_  | .NET Framework 4.7.1 | .NET Framework 4.7.1 | 488.22 ms | 9.696 ms | 15.931 ms | 487.17 ms | 63000.0000 | 1000.0000 | 378.31 MB |
 
 ## Performance
 
@@ -315,14 +315,15 @@ It uses modern multibyte CPU instructions and almost no heap allocations.
 All core methods have been tested on a large and a small input text.
 
 **Inputs:**
+
 - `SmallText`: 453 B (text/plain)
 - `LargeText`: 51 KB (text/html)
 
 **Methods:**
+
 - `Encode`: text to tokens
 - `Decode`: tokens to text
 - `CountTokens`: high performance API to count tokens of text
-
 
 ```
 BenchmarkDotNet v0.13.12, Windows 11 (10.0.22631.3296/23H2/2023Update/SunValley3)
@@ -334,8 +335,8 @@ AMD Ryzen 9 3900X, 1 CPU, 24 logical and 12 physical cores
   .NET Framework 4.7.1 : .NET Framework 4.8.1 (4.8.9181.0), X64 RyuJIT VectorSize=256
 ```
 
-| Method                   | Mean          | Error       | StdDev      | Ratio | RatioSD | Allocated | Alloc Ratio |
-|------------------------- |--------------:|------------:|------------:|------:|--------:|----------:|------------:|
+| Method                   |          Mean |       Error |      StdDev | Ratio | RatioSD | Allocated | Alloc Ratio |
+| ------------------------ | ------------: | ----------: | ----------: | ----: | ------: | --------: | ----------: |
 | **.NET 8.0**             |               |             |             |       |         |           |             |
 | Encode_SmallText         |     22.649 us |   0.4244 us |   0.4359 us |  0.28 |    0.01 |     696 B |        0.02 |
 | Encode_LargeText         |  4,542.505 us |  87.7988 us | 104.5182 us |  0.24 |    0.01 |  155547 B |        0.03 |
