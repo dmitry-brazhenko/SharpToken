@@ -151,8 +151,9 @@ namespace SharpToken
 
             var specialTokens = new Dictionary<string, int>
             {
-                // Base O200K special tokens (from o200k_base) - EndOfPrompt is omitted as it gets replaced by reserved_200018
+                // Base O200K special tokens (from o200k_base)
                 { EndOfText, 199999 },
+                { EndOfPrompt, 200018 }, // This will be overwritten by reserved_200018, but allows recognition
                 
                 // Additional O200K Harmony special tokens
                 { "<|startoftext|>", 199998 },
@@ -171,9 +172,17 @@ namespace SharpToken
                 { "<|call|>", 200012 }
             };
 
-            // Add reserved tokens from 200013 to 201087 (this will create <|reserved_200018|> with same ID as EndOfPrompt)
+            // Add reserved tokens from 200013 to 201087
+            // Note: We skip 200018 to avoid duplicate key with EndOfPrompt
             for (int i = 200013; i < 201088; i++)
             {
+                if (i == 200018)
+                {
+                    // Skip 200018 to avoid duplicate key exception
+                    // Both <|endofprompt|> and <|reserved_200018|> would map to 200018
+                    // We keep <|endofprompt|> for compatibility
+                    continue;
+                }
                 specialTokens[$"<|reserved_{i}|>"] = i;
             }
 
