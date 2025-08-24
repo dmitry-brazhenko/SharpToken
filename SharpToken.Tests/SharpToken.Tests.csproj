@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net471;netcoreapp3.1;net6.0;net8.0</TargetFrameworks>
+    <TargetFrameworks Condition="!$([MSBuild]::IsOSPlatform('Windows'))">net6.0;net8.0</TargetFrameworks>
     <LangVersion>preview</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>

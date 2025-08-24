@@ -9,6 +9,11 @@ namespace SharpToken
         {
             // chat
             { "gpt-4o", "o200k_base" },
+            { "gpt-5", "o200k_base" },
+            { "gpt-5-mini", "o200k_base" },
+            { "gpt-5-nano", "o200k_base" },
+            { "gpt-5-pro", "o200k_base" },
+            { "gpt-5-thinking", "o200k_base" },
             { "gpt-4", "cl100k_base" },
             { "gpt-3.5-turbo-16k", "cl100k_base" },
             { "gpt-35-turbo-16k", "cl100k_base" }, // Azure deployment name
@@ -54,6 +59,7 @@ namespace SharpToken
 
         private static readonly Dictionary<string, string> ModelPrefixToEncodingMapping = new Dictionary<string, string>
         {
+            { "gpt-5", "o200k_base" }, // e.g., gpt-5-2024-08-07, gpt-5-chat-latest, etc.
             { "gpt-4o", "o200k_base" }, // (NOTE: no trailing dash, on purpose). E.g., gpt-4o, gpt-4o-2024-05-13, etc.,
             { "gpt-4-", "cl100k_base" }, // e.g., gpt-4-0314, etc., plus gpt-4-32k
             { "gpt-3.5-turbo-", "cl100k_base" }, // e.g, gpt-3.5-turbo-0301, -0401, etc.
