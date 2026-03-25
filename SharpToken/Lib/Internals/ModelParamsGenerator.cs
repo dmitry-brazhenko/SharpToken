@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace SharpToken
@@ -11,17 +12,20 @@ namespace SharpToken
         public Regex TokenizerRegex { get; }
         public BytePairIndex MergeableRanks { get; }
         public Dictionary<string, int> SpecialTokens { get; }
+        public NormalizationForm? TextNormalization { get; }
 
         public ModelParams(
             int? explicitNVocab = null,
             Regex tokenizerRegex = null,
             BytePairIndex mergeableRanks = null,
-            Dictionary<string, int> specialTokens = null)
+            Dictionary<string, int> specialTokens = null,
+            NormalizationForm? textNormalization = null)
         {
             ExplicitNVocab = explicitNVocab;
             TokenizerRegex = tokenizerRegex;
             MergeableRanks = mergeableRanks;
             SpecialTokens = specialTokens ?? new Dictionary<string, int>();
+            TextNormalization = textNormalization;
         }
     }
 
@@ -58,6 +62,9 @@ namespace SharpToken
 
                     case "o200k_harmony":
                         return O200KHarmony();
+
+                    case "claude":
+                        return Claude();
 
                     default:
                         throw new ArgumentException($"Unknown encoding name: {encodingName}");
@@ -191,6 +198,29 @@ namespace SharpToken
                 tokenizerRegex: ModelParamsGeneratorRegex.RegexO200KBase(),
                 mergeableRanks: mergeableRanks,
                 specialTokens: specialTokens
+            );
+        }
+
+
+        private static ModelParams Claude()
+        {
+            var mergeableRanks = EmbeddedResourceReader.LoadTokenBytePairEncoding("SharpToken.data.claude.tiktoken");
+
+            var specialTokens = new Dictionary<string, int>
+            {
+                { "<EOT>", 0 },
+                { "<META>", 1 },
+                { "<META_START>", 2 },
+                { "<META_END>", 3 },
+                { "<SOS>", 4 }
+            };
+
+            return new ModelParams
+            (
+                tokenizerRegex: ModelParamsGeneratorRegex.Regex50KBase(),
+                mergeableRanks: mergeableRanks,
+                specialTokens: specialTokens,
+                textNormalization: NormalizationForm.FormKC
             );
         }
     }

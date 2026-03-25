@@ -11,12 +11,14 @@ namespace SharpToken
     {
         private readonly BytePairEncodingCore _bytePairEncodingCoreProcessor;
         private readonly Dictionary<string, int> _specialTokenMappings;
+        private readonly NormalizationForm? _textNormalization;
 
         private GptEncoding(
             Regex tokenizerRegex,
             BytePairIndex bytePairRanks,
             Dictionary<string, int> specialTokenMappings,
-            int? explicitNVocab = null
+            int? explicitNVocab = null,
+            NormalizationForm? textNormalization = null
         )
         {
             var maxTokenValue = Math.Max(
@@ -40,6 +42,7 @@ namespace SharpToken
                 }
             }
 
+            _textNormalization = textNormalization;
             _bytePairEncodingCoreProcessor = new BytePairEncodingCore(bytePairRanks, specialTokenMappings, tokenizerRegex);
 
             int GetMaxValueFromBytePairRanks(BytePairIndex dictionary)
@@ -61,7 +64,8 @@ namespace SharpToken
                 modelParams.TokenizerRegex,
                 modelParams.MergeableRanks,
                 modelParams.SpecialTokens,
-                modelParams.ExplicitNVocab
+                modelParams.ExplicitNVocab,
+                modelParams.TextNormalization
             );
 
             return encoding;
@@ -150,6 +154,16 @@ namespace SharpToken
             bool countOnly = false
         )
         {
+            if (_textNormalization.HasValue)
+            {
+#if NET8_0_OR_GREATER
+                var normalized = new string(lineToEncode).Normalize(_textNormalization.Value);
+                lineToEncode = normalized.AsSpan();
+#else
+                lineToEncode = lineToEncode.Normalize(_textNormalization.Value);
+#endif
+            }
+
             var allowedSpecialTokens = allowedSpecial is null
                 // When null allow nothing
                 ? Array.Empty<string>()

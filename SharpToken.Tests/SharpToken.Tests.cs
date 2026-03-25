@@ -1,4 +1,4 @@
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Text;
 using System.Linq;
 using NUnit.Framework;
@@ -7,7 +7,7 @@ namespace SharpToken.Tests;
 
 public class Tests
 {
-    private static readonly List<string> ModelsList = new() { "p50k_base", "r50k_base", "cl100k_base", "o200k_base", "o200k_harmony" };
+    private static readonly List<string> ModelsList = new() { "p50k_base", "r50k_base", "cl100k_base", "o200k_base", "o200k_harmony", "claude" };
 
     private static readonly List<Tuple<string, string, List<int>>> TestData =
         TestHelpers.ReadTestPlans("SharpToken.Tests.data.TestPlans.txt");
@@ -206,6 +206,13 @@ public class Tests
             return;
         }
 
+        // Skip claude as it doesn't have a remote resource on openaipublic.blob.core.windows.net
+        if (modelName == "claude")
+        {
+            Assert.Pass("claude is an Anthropic encoding without a remote resource on openaipublic.blob.core.windows.net");
+            return;
+        }
+
         var embeddedResourceName = $"SharpToken.data.{modelName}.tiktoken";
         var remoteResourceUrl = $"https://openaipublic.blob.core.windows.net/encodings/{modelName}.tiktoken";
 
@@ -286,6 +293,56 @@ public class Tests
         Assert.That(Model.GetEncodingNameForModel("gpt-5-chat-latest"), Is.EqualTo("o200k_base"));
     }
 
+    [Test]
+    public void TestClaudeBasicEncodingDecoding()
+    {
+        var encoding = GptEncoding.GetEncoding("claude");
+        const string inputText = "Hello, world!";
+        var encoded = encoding.Encode(inputText);
+        var decodedText = encoding.Decode(encoded);
+        Assert.That(decodedText, Is.EqualTo(inputText));
+    }
+
+    [Test]
+    public void TestClaudeModelMappings()
+    {
+        Assert.That(Model.GetEncodingNameForModel("claude-3-opus"), Is.EqualTo("claude"));
+        Assert.That(Model.GetEncodingNameForModel("claude-3.5-sonnet"), Is.EqualTo("claude"));
+        Assert.That(Model.GetEncodingNameForModel("claude-3-opus-20240229"), Is.EqualTo("claude"));
+        Assert.That(Model.GetEncodingNameForModel("claude-2"), Is.EqualTo("claude"));
+        Assert.That(Model.GetEncodingNameForModel("claude-instant-1"), Is.EqualTo("claude"));
+    }
+
+    [Test]
+    public void TestClaudeNfkcNormalization()
+    {
+        var encoding = GptEncoding.GetEncoding("claude");
+        
+        // Fullwidth "Hello" should normalize to ASCII "Hello" via NFKC
+        const string fullwidthHello = "Ｈｅｌｌｏ";
+        const string asciiHello = "Hello";
+        
+        var fullwidthEncoded = encoding.Encode(fullwidthHello);
+        var asciiEncoded = encoding.Encode(asciiHello);
+        
+        // NFKC normalization should make them produce the same tokens
+        Assert.That(fullwidthEncoded, Is.EqualTo(asciiEncoded));
+    }
+
+    [Test]
+    public void TestClaudeSpecialTokens()
+    {
+        var encoding = GptEncoding.GetEncoding("claude");
+        
+        // Test encoding with special tokens allowed
+        var allowedSpecial = new HashSet<string> { "<EOT>" };
+        var encoded = encoding.Encode("<EOT>", allowedSpecial);
+        Assert.That(encoded, Is.EqualTo(new List<int> { 0 }));
+        
+        // Test that special tokens are disallowed by default
+        Assert.Throws<ArgumentException>(() => encoding.Encode("<EOT>"));
+    }
+
     private static HashSet<string> GetSpecialTokensForEncoding(string encodingName)
     {
         return encodingName switch
@@ -299,6 +356,7 @@ public class Tests
                 "<|endoftext|>", "<|endofprompt|>", "<|startoftext|>", "<|return|>", "<|constrain|>", 
                 "<|channel|>", "<|start|>", "<|end|>", "<|message|>", "<|call|>"
             }.Union(Enumerable.Range(200000, 1088).Select(i => $"<|reserved_{i}|>"))),
+            "claude" => new HashSet<string> { "<EOT>", "<META>", "<META_START>", "<META_END>", "<SOS>" },
             _ => new HashSet<string>()
         };
     }

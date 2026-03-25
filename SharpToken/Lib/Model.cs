@@ -54,7 +54,20 @@ namespace SharpToken
             { "text-search-babbage-doc-001", "r50k_base" },
             { "text-search-ada-doc-001", "r50k_base" },
             { "code-search-babbage-code-001", "r50k_base" },
-            { "code-search-ada-code-001", "r50k_base" }
+            { "code-search-ada-code-001", "r50k_base" },
+            // Anthropic Claude
+            { "claude-instant-1", "claude" },
+            { "claude-2", "claude" },
+            { "claude-2.0", "claude" },
+            { "claude-2.1", "claude" },
+            { "claude-3-opus", "claude" },
+            { "claude-3-sonnet", "claude" },
+            { "claude-3-haiku", "claude" },
+            { "claude-3.5-sonnet", "claude" },
+            { "claude-3.5-haiku", "claude" },
+            { "claude-3.7-sonnet", "claude" },
+            { "claude-4-opus", "claude" },
+            { "claude-4-sonnet", "claude" }
         };
 
         private static readonly Dictionary<string, string> ModelPrefixToEncodingMapping = new Dictionary<string, string>
@@ -64,6 +77,7 @@ namespace SharpToken
             { "gpt-4-", "cl100k_base" }, // e.g., gpt-4-0314, etc., plus gpt-4-32k
             { "gpt-3.5-turbo-", "cl100k_base" }, // e.g, gpt-3.5-turbo-0301, -0401, etc.
             { "gpt-35-turbo", "cl100k_base" }, // Azure deployment name
+            { "claude-", "claude" }, // e.g., claude-3-opus-20240229, claude-3.5-sonnet-20241022, etc.
         };
 
         public static string GetEncodingNameForModel(string modelName)
