@@ -78,8 +78,9 @@ SharpToken currently supports the following models:
 - `cl100k_base`
 - `o200k_base`
 - `o200k_harmony`
+- `claude`
 
-You can use any of these models when creating an instance of GptEncoding:
+You can use any of these encodings when creating an instance of GptEncoding:
 
 ```csharp
 var r50kBaseEncoding = GptEncoding.GetEncoding("r50k_base");
@@ -88,7 +89,19 @@ var p50kEditEncoding = GptEncoding.GetEncoding("p50k_edit");
 var cl100kBaseEncoding = GptEncoding.GetEncoding("cl100k_base");
 var o200kBaseEncoding = GptEncoding.GetEncoding("o200k_base");
 var o200kHarmonyEncoding = GptEncoding.GetEncoding("o200k_harmony");
+var claudeEncoding = GptEncoding.GetEncoding("claude");
 ```
+
+### Claude Model Support
+
+The `claude` encoding uses Anthropic's official tokenizer vocabulary with NFKC normalization. It is accurate for pre-Claude 3 models and a rough approximation for Claude 3+.
+
+```csharp
+var encoding = GptEncoding.GetEncodingForModel("claude-3.5-sonnet");
+var count = encoding.CountTokens("Hello, Claude!");
+```
+
+All `claude-*` model names are supported (e.g. `claude-3-opus`, `claude-3.5-sonnet`, `claude-3.7-sonnet`, `claude-4-sonnet`).
 
 ### Model Prefix Matching
 
@@ -98,6 +111,7 @@ Here are the current supported prefixes and their corresponding encodings:
 
 | Model Prefix     | Encoding      |
 | ---------------- | ------------- |
+| `claude-`        | `claude`      |
 | `gpt-5`          | `o200k_base`  |
 | `gpt-4o`         | `o200k_base`  |
 | `gpt-4-`         | `cl100k_base` |
@@ -106,7 +120,8 @@ Here are the current supported prefixes and their corresponding encodings:
 
 Examples of model names that fall under these prefixes include:
 
-- For the prefix `gpt-5`: `gpt-5`, `gpt-5-mini`, `gpt-5-nano`, `gpt-5-pro`, `gpt-5-thinking`, `gpt-5-2024-08-07`, `gpt-5-chat-latest`, etc.
+- For the prefix `claude-`: `claude-3-opus-20240229`, `claude-3.5-sonnet-20241022`, etc.
+- For the prefix `gpt-5`: `gpt-5`, `gpt-5-mini`, `gpt-5-nano`, `gpt-5-pro`, `gpt-5-thinking`, `gpt-5-2024-08-07`, etc.
 - For the prefix `gpt-4o`: `gpt-4o`, `gpt-4o-2024-05-13`, etc.
 - For the prefix `gpt-4-`: `gpt-4-0314`, `gpt-4-32k`, etc.
 - For the prefix `gpt-3.5-turbo-`: `gpt-3.5-turbo-0301`, `gpt-3.5-turbo-0401`, etc.
@@ -115,10 +130,11 @@ Examples of model names that fall under these prefixes include:
 To retrieve the encoding name based on a model name or its prefix, you can use the `GetEncodingNameForModel` method:
 
 ```csharp
-string encodingName = Model.GetEncodingNameForModel("gpt-4-0314");  // This will return "cl100k_base"
+string encodingName = Model.GetEncodingNameForModel("claude-3.5-sonnet"); // Returns "claude"
+string encodingName = Model.GetEncodingNameForModel("gpt-4-0314");        // Returns "cl100k_base"
 ```
 
-If the provided model name doesn't match any direct model names or prefixes, the method will return `null`.
+If the provided model name doesn't match any direct model names or prefixes, an exception is thrown.
 
 ## Understanding Encoded Values
 
